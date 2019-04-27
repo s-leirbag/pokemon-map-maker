@@ -25,6 +25,26 @@ ENTITY_DEFS = {
                     interval = 0.15,
                     texture = 'boy-run'
                 },
+                ['run-left'] = {
+                    frames = {5, 6, 7, 8},
+                    interval = 0.07,
+                    texture = 'boy-run'
+                },
+                ['run-right'] = {
+                    frames = {9, 10, 11, 12},
+                    interval = 0.07,
+                    texture = 'boy-run'
+                },
+                ['run-down'] = {
+                    frames = {1, 2, 3, 4},
+                    interval = 0.07,
+                    texture = 'boy-run'
+                },
+                ['run-up'] = {
+                    frames = {13, 14, 15, 16},
+                    interval = 0.07,
+                    texture = 'boy-run'
+                },
                 ['idle-left'] = {
                     frames = {5},
                     texture = 'boy-run'
@@ -66,6 +86,26 @@ ENTITY_DEFS = {
                 ['walk-up'] = {
                     frames = {13, 14, 15, 16},
                     interval = 0.15,
+                    texture = 'girl-run'
+                },
+                ['run-left'] = {
+                    frames = {5, 6, 7, 8},
+                    interval = 0.07,
+                    texture = 'girl-run'
+                },
+                ['run-right'] = {
+                    frames = {9, 10, 11, 12},
+                    interval = 0.07,
+                    texture = 'girl-run'
+                },
+                ['run-down'] = {
+                    frames = {1, 2, 3, 4},
+                    interval = 0.07,
+                    texture = 'girl-run'
+                },
+                ['run-up'] = {
+                    frames = {13, 14, 15, 16},
+                    interval = 0.07,
                     texture = 'girl-run'
                 },
                 ['idle-left'] = {

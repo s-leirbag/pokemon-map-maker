@@ -13,12 +13,14 @@ function Level:init(width, height)
     self.height = height
 
     -- for map making
-    self.mode = 'base' -- options are 'base', 'second'
-    self.name = 'grass' -- depends on mode
-    self.frame = 1
+    self.layer = 'base'
+    self.name = TILE_NAMES[self.layer][1]
     self.type = 1
+    self.frame = 1
 
     self:createMaps()
+
+    self.currentLayer = self.baseLayer
 
     self.player = Player {
         type = 'player',
@@ -126,7 +128,7 @@ function Level:render()
     love.graphics.line(frameX, frameY, frameX, frameY + TILE_SIZE, frameX + TILE_SIZE, frameY + TILE_SIZE, frameX + TILE_SIZE, frameY, frameX, frameY)
     love.graphics.setColor(1, 1, 1, 1)
 
-    love.graphics.print(self.mode, 5, 10)
+    love.graphics.print(self.layer, 5, 10)
     love.graphics.print(self.name, 5, 20)
     love.graphics.print(self.type, 5, 30)
     love.graphics.print(self.frame, 5, 40)
@@ -139,34 +141,37 @@ function Level:render()
     love.graphics.print(self.frame, 5, 110)
 end
 
-function Level:changeMap()    
+function Level:changeMap() 
+	-- update layer  
     if love.keyboard.isDown('1') then
-    	if self.mode ~= 'base' then
-	        self.mode = 'base'
+    	if self.layer ~= 'base' then
+	        self.layer = 'base'
+	        self.currentLayer = self.baseLayer
 	        self.type = 1
-	        self.name = TILE_NAMES[self.mode][1]
+	        self.name = TILE_NAMES[self.layer][1]
 	    end
     elseif love.keyboard.isDown('2') then
-    	if self.mode ~= 'second' then
-	        self.mode = 'second'
+    	if self.layer ~= 'second' then
+	        self.layer = 'second'
+	        self.currentLayer = self.secondLayer
 	        self.type = 1
-	        self.name = TILE_NAMES[self.mode][1]
+	        self.name = TILE_NAMES[self.layer][1]
 	    end
     end
 
     -- update name
     if love.keyboard.isDown('q') then
-    	self.name = TILE_NAMES[self.mode][1] or TILE_NAMES[self.mode][#TILE_NAMES[self.mode]]
+    	self.name = TILE_NAMES[self.layer][1] or TILE_NAMES[self.layer][#TILE_NAMES[self.layer]]
     elseif love.keyboard.isDown('w') then
-    	self.name = TILE_NAMES[self.mode][2] or TILE_NAMES[self.mode][#TILE_NAMES[self.mode]]
+    	self.name = TILE_NAMES[self.layer][2] or TILE_NAMES[self.layer][#TILE_NAMES[self.layer]]
     elseif love.keyboard.isDown('e') then
-    	self.name = TILE_NAMES[self.mode][3] or TILE_NAMES[self.mode][#TILE_NAMES[self.mode]]
+    	self.name = TILE_NAMES[self.layer][3] or TILE_NAMES[self.layer][#TILE_NAMES[self.layer]]
     elseif love.keyboard.isDown('r') then
-    	self.name = TILE_NAMES[self.mode][4] or TILE_NAMES[self.mode][#TILE_NAMES[self.mode]]
+    	self.name = TILE_NAMES[self.layer][4] or TILE_NAMES[self.layer][#TILE_NAMES[self.layer]]
     elseif love.keyboard.isDown('t') then
-    	self.name = TILE_NAMES[self.mode][5] or TILE_NAMES[self.mode][#TILE_NAMES[self.mode]]
+    	self.name = TILE_NAMES[self.layer][5] or TILE_NAMES[self.layer][#TILE_NAMES[self.layer]]
     elseif love.keyboard.isDown('y') then
-    	self.name = TILE_NAMES[self.mode][6] or TILE_NAMES[self.mode][#TILE_NAMES[self.mode]]
+    	self.name = TILE_NAMES[self.layer][6] or TILE_NAMES[self.layer][#TILE_NAMES[self.layer]]
     end
 
 	if gMouse.x <= TILE_SIZE * 8 then
@@ -180,23 +185,18 @@ function Level:changeMap()
 			end
 		end
 	else
-		if self.mode == 'base' then
-    		-- place tile
-	        if love.mouse.isDown(1) then
-	            if not self.baseLayer.tiles[gMouse.mapY] then
-	                self.baseLayer.tiles[gMouse.mapY] = {}
-	            end
+		-- place tile
+        if love.mouse.isDown(1) then
+            if not self.currentLayer.tiles[gMouse.mapY] then
+                self.currentLayer.tiles[gMouse.mapY] = {}
+            end
 
-	            self.baseLayer.tiles[gMouse.mapY][gMouse.mapX] = Tile(gMouse.mapX, gMouse.mapY, self.name, self.frame, self.type)
-	        -- remove tile
-	        elseif love.mouse.isDown(2) then
-	            if self.baseLayer.tiles[gMouse.mapY] then
-	                self.baseLayer.tiles[gMouse.mapY][gMouse.mapX] = nil
-	            end
-	        end
-	    elseif self.mode == 'second' then
-
-	    end
-
+            self.currentLayer.tiles[gMouse.mapY][gMouse.mapX] = Tile(gMouse.mapX, gMouse.mapY, self.name, self.frame, self.type)
+        -- remove tile
+        elseif love.mouse.isDown(2) then
+            if self.currentLayer.tiles[gMouse.mapY] then
+                self.currentLayer.tiles[gMouse.mapY][gMouse.mapX] = nil
+            end
+        end
     end
 end

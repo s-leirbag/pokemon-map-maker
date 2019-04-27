@@ -17,7 +17,7 @@ function PlayerWalkState:enter()
     --self:checkForEncounter()
 
     if not self.encounterFound then
-        self:attemptMove()
+        self:attemptMove(love.keyboard.isDown('z'))
     end
 end
 

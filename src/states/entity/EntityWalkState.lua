@@ -19,8 +19,12 @@ function EntityWalkState:enter(params)
     self:attemptMove()
 end
 
-function EntityWalkState:attemptMove()
-    self.entity:changeAnimation('walk-' .. tostring(self.entity.direction))
+function EntityWalkState:attemptMove(run)
+    if run == true then
+        self.entity:changeAnimation('run-' .. tostring(self.entity.direction))
+    else
+        self.entity:changeAnimation('walk-' .. tostring(self.entity.direction))
+    end
 
     local toX, toY = self.entity.mapX, self.entity.mapY
 
@@ -37,7 +41,7 @@ function EntityWalkState:attemptMove()
     self.entity.mapY = toY
     self.entity.mapX = toX
 
-    Timer.tween(0.2, {
+    Timer.tween(run == true and 0.11 or 0.2, {
         [self.entity] = {x = (toX - 1) * TILE_SIZE, y = (toY - 1) * TILE_SIZE - ENTITY_TILE_OFFSET}
     }):finish(function()
         if love.keyboard.isDown('up') then
