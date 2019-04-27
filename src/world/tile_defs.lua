@@ -23,6 +23,8 @@ TILE_INFO = {
     ['path'] = {
         name = 'path',
         io = 'outside',
+        defaultType = 1,
+        types = 5,
         solid = false
     }
 }

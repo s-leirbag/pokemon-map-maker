@@ -59,7 +59,7 @@ function GeneratePathQuads(quads)
         tilesheet[color] = {}
 
         for i = 1, 56 do
-            table.insert(tilesheet[color], quads[56 + offset])
+            table.insert(tilesheet[color], quads[i + offset])
         end
 
         offset = offset + 56

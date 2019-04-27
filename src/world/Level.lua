@@ -174,6 +174,17 @@ function Level:changeMap()
     	self.name = TILE_NAMES[self.layer][6] or TILE_NAMES[self.layer][#TILE_NAMES[self.layer]]
     end
 
+    -- update type
+    if love.keyboard.wasPressed('a') then
+    	if self.type > 1 then
+    		self.type = self.type - 1
+    	end
+    elseif love.keyboard.wasPressed('s') then
+    	if self.type < TILE_INFO[self.name].types then
+    		self.type = self.type + 1
+    	end
+    end
+
 	if gMouse.x <= TILE_SIZE * 8 then
 		-- pick frame
 		if love.mouse.isDown(1) then
