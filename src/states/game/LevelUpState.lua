@@ -128,53 +128,61 @@ function LevelUpState:nextMenu()
             {
                 text = 'HP',
                 onSelect = function()
-                    self:nextMenu()
+                    gStateStack:pop()
+                    self:onClose()
                 end
             },
             {
                 text = self.stats.HP + self.stats.HPIncrease,
                 align = 'right',
                 onSelect = function()
-                    self:nextMenu()
+                    gStateStack:pop()
+                    self:onClose()
                 end
             },
             {
                 text = 'Atk',
                 onSelect = function()
-                    self:nextMenu()
+                    gStateStack:pop()
+                    self:onClose()
                 end
             },
             {
                 text = self.stats.attack + self.stats.attackIncrease,
                 align = 'right',
                 onSelect = function()
-                    self:nextMenu()
+                    gStateStack:pop()
+                    self:onClose()
                 end
             },
             {
                 text = 'Def',
                 onSelect = function()
-                    self:nextMenu()
+                    gStateStack:pop()
+                    self:onClose()
                 end
             },
             {
                 text = self.stats.defense + self.stats.defenseIncrease,
                 align = 'right',
                 onSelect = function()
-                    self:nextMenu()
+                    gStateStack:pop()
+                    self:onClose()
                 end
             },
             {
                 text = 'Spd',
                 onSelect = function()
-                    self:nextMenu()
+                    gStateStack:pop()
+                    self:onClose()
                 end
             },
             {
                 text = self.stats.speed + self.stats.speedIncrease,
                 align = 'right',
                 onSelect = function()
-                    self:nextMenu()
+                    gStateStack:pop()
+                    self:onClose()
                 end
             }
         }
