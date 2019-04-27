@@ -1,20 +1,3 @@
---[[
-    GD50
-    Super Mario Bros. Remake
-
-    -- StartState Class --
-
-    Author: Colton Ogden
-    cogden@cs50.harvard.edu
-
-    Helper functions for writing Match-3.
-]]
-
---[[
-    Given an "atlas" (a texture with multiple sprites), as well as a
-    width and a height for the tiles therein, split the texture into
-    all of the quads by simply dividing it evenly.
-]]
 function GenerateQuads(atlas, tilewidth, tileheight)
     local sheetWidth = atlas:getWidth() / tilewidth
     local sheetHeight = atlas:getHeight() / tileheight
@@ -34,40 +17,72 @@ function GenerateQuads(atlas, tilewidth, tileheight)
     return spritesheet
 end
 
---[[
-    Recursive table printing function.
-    https://coronalabs.com/blog/2014/09/02/tutorial-printing-table-contents/
-]]
-function print_r ( t )
-    local print_r_cache={}
-    local function sub_print_r(t,indent)
-        if (print_r_cache[tostring(t)]) then
-            print(indent.."*"..tostring(t))
-        else
-            print_r_cache[tostring(t)]=true
-            if (type(t)=="table") then
-                for pos,val in pairs(t) do
-                    if (type(val)=="table") then
-                        print(indent.."["..pos.."] => "..tostring(t).." {")
-                        sub_print_r(val,indent..string.rep(" ",string.len(pos)+8))
-                        print(indent..string.rep(" ",string.len(pos)+6).."}")
-                    elseif (type(val)=="string") then
-                        print(indent.."["..pos..'] => "'..val..'"')
-                    else
-                        print(indent.."["..pos.."] => "..tostring(val))
-                    end
-                end
-            else
-                print(indent..tostring(t))
-            end
+function GenerateOutsideQuads()
+    local quads = GenerateQuads(gTextures['outside'], 16, 16)
+
+    tilesheet = {}
+    tilesheet['grass'], tilesheet['half-tall-grass'], tilesheet['tall-grass'], tilesheet['extra-tall-grass'] = GenerateGrassQuads(quads)
+    tilesheet['path'] = GeneratePathQuads(quads)
+
+    return tilesheet
+end
+
+function GenerateGrassQuads(quads)
+    local grass = {}
+
+    grass[1] = {}
+    for i = 1, 5 do
+        table.insert(grass[1], quads[i])
+    end
+
+    local halfTallGrass = {}
+    halfTallGrass[1] = {}
+    table.insert(halfTallGrass[1], quads[6])
+
+    local tallGrass = {}
+    tallGrass[1] = {}
+    table.insert(tallGrass[1], quads[7])
+
+    local extraTallGrass = {}
+    extraTallGrass[1] = {}
+    table.insert(extraTallGrass[1], quads[8])
+    table.insert(extraTallGrass[1], quads[16])
+
+    return grass, halfTallGrass, tallGrass, extraTallGrass
+end
+
+function GeneratePathQuads(quads)
+    local tilesheet = {}
+    local offset = 40
+
+    for color = 1, 5 do
+        tilesheet[color] = {}
+
+        for i = 1, 56 do
+            table.insert(tilesheet[color], quads[56 + offset])
         end
+
+        offset = offset + 56
     end
-    if (type(t)=="table") then
-        print(tostring(t).." {")
-        sub_print_r(t,"  ")
-        print("}")
-    else
-        sub_print_r(t,"  ")
-    end
-    print()
+
+    return tilesheet
+end
+
+function GeneratePlayerQuads()
+    local quads = {
+        ['boy'] = {
+            ['boy-run'] = GenerateQuads(gTextures['boy-run'], 16, 24),
+            ['boy-bike'] = GenerateQuads(gTextures['boy-bike'], 24, 24),
+            ['boy-surf'] = GenerateQuads(gTextures['boy-surf'], 16, 24),
+            ['boy-fish'] = GenerateQuads(gTextures['boy-fish'], 48, 40)
+        },
+        ['girl'] = {
+            ['girl-run'] = GenerateQuads(gTextures['girl-run'], 16, 24),
+            ['girl-bike'] = GenerateQuads(gTextures['girl-bike'], 24, 24),
+            ['girl-surf'] = GenerateQuads(gTextures['girl-surf'], 16, 24),
+            ['girl-fish'] = GenerateQuads(gTextures['girl-fish'], 48, 40)
+        }
+    }
+    
+    return quads
 end

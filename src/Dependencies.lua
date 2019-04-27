@@ -1,7 +1,3 @@
---
--- libraries
---
-
 Class = require 'lib/class'
 Event = require 'lib/knife.event'
 push = require 'lib/push'
@@ -56,30 +52,36 @@ require 'src/world/Tile'
 require 'src/world/TileMap'
 
 gTextures = {
-    ['tiles'] = love.graphics.newImage('graphics/sheet.png'),
-    ['entities'] = love.graphics.newImage('graphics/entities.png'),
-    ['cursor'] = love.graphics.newImage('graphics/cursor.png'),
+    ['outside'] = love.graphics.newImage('graphics/tilesets/Outside.png'),
+    
+    ['boy-run'] = love.graphics.newImage('graphics/characters/player/boy/boy_run.png'),
+    ['boy-bike'] = love.graphics.newImage('graphics/characters/player/boy/boy_bike.png'),
+    ['boy-surf'] = love.graphics.newImage('graphics/characters/player/boy/boy_surf.png'),
+    ['boy-fish'] = love.graphics.newImage('graphics/characters/player/boy/boy_fish.png'),
+    ['girl-run'] = love.graphics.newImage('graphics/characters/player/girl/girl_run.png'),
+    ['girl-bike'] = love.graphics.newImage('graphics/characters/player/girl/girl_bike.png'),
+    ['girl-surf'] = love.graphics.newImage('graphics/characters/player/girl/girl_surf.png'),
+    ['girl-fish'] = love.graphics.newImage('graphics/characters/player/girl/girl_fish.png'),
 
-    ['aardart-back'] = love.graphics.newImage('graphics/pokemon/aardart-back.png'),
-    ['aardart-front'] = love.graphics.newImage('graphics/pokemon/aardart-front.png'),
-    ['agnite-back'] = love.graphics.newImage('graphics/pokemon/agnite-back.png'),
-    ['agnite-front'] = love.graphics.newImage('graphics/pokemon/agnite-front.png'),
-    ['anoleaf-back'] = love.graphics.newImage('graphics/pokemon/anoleaf-back.png'),
-    ['anoleaf-front'] = love.graphics.newImage('graphics/pokemon/anoleaf-front.png'),
-    ['bamboon-back'] = love.graphics.newImage('graphics/pokemon/bamboon-back.png'),
-    ['bamboon-front'] = love.graphics.newImage('graphics/pokemon/bamboon-front.png'),
-    ['cardiwing-back'] = love.graphics.newImage('graphics/pokemon/cardiwing-back.png'),
-    ['cardiwing-front'] = love.graphics.newImage('graphics/pokemon/cardiwing-front.png'),
+    ['aardart-back'] = love.graphics.newImage('graphics/pokemon/battle/aardart-back.png'),
+    ['aardart-front'] = love.graphics.newImage('graphics/pokemon/battle/aardart-front.png'),
+    ['agnite-back'] = love.graphics.newImage('graphics/pokemon/battle/agnite-back.png'),
+    ['agnite-front'] = love.graphics.newImage('graphics/pokemon/battle/agnite-front.png'),
+    ['anoleaf-back'] = love.graphics.newImage('graphics/pokemon/battle/anoleaf-back.png'),
+    ['anoleaf-front'] = love.graphics.newImage('graphics/pokemon/battle/anoleaf-front.png'),
+    ['bamboon-back'] = love.graphics.newImage('graphics/pokemon/battle/bamboon-back.png'),
+    ['bamboon-front'] = love.graphics.newImage('graphics/pokemon/battle/bamboon-front.png'),
+    ['cardiwing-back'] = love.graphics.newImage('graphics/pokemon/battle/cardiwing-back.png'),
+    ['cardiwing-front'] = love.graphics.newImage('graphics/pokemon/battle/cardiwing-front.png'),
 }
 
 gFrames = {
-    ['tiles'] = GenerateQuads(gTextures['tiles'], 16, 16),
-    ['entities'] = GenerateQuads(gTextures['entities'], 16, 16)
+	['outside'] = GenerateOutsideQuads(),
+    ['player'] = GeneratePlayerQuads()
 }
 
 gFonts = {
     ['small'] = love.graphics.newFont('fonts/font.ttf', 8),
-    --['small-medium'] = love.graphics.newFont('fonts/font4x5.ttf', 10),
     ['medium'] = love.graphics.newFont('fonts/font.ttf', 16),
     ['large'] = love.graphics.newFont('fonts/font.ttf', 32)
 }

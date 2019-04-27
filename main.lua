@@ -62,6 +62,9 @@ function love.load()
     gStateStack:push(StartState())
 
     love.keyboard.keysPressed = {}
+
+    camX = 0
+    camY = 0
 end
 
 function love.resize(w, h)
@@ -81,6 +84,7 @@ function love.keyboard.wasPressed(key)
 end
 
 function love.update(dt)
+    updateMouse()
     Timer.update(dt)
     gStateStack:update(dt)
 
@@ -91,4 +95,15 @@ function love.draw()
     push:start()
     gStateStack:render()
     push:finish()
+end
+
+function updateMouse()
+    gMouse = {}
+    gMouse.x, gMouse.y = love.mouse.getPosition()
+    gMouse.x, gMouse.y = push:toGame(gMouse.x, gMouse.y)
+    gMouse.x = gMouse.x
+    gMouse.y = gMouse.y
+
+    gMouse.mapX = math.floor((gMouse.x + camX) / 16) + 1
+    gMouse.mapY = math.floor((gMouse.y + camY) / 16) + 1
 end

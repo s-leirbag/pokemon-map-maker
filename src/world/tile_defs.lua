@@ -1,35 +1,44 @@
 TILE_INFO = {
     ['grass'] = {
-    	['id'] = 'grass',
-    	['getFrame'] = function() return math.random(46, 47) end,
-    	['solid'] = false
-    },
-    ['empty'] = {
-    	['id'] = 'empty',
-    	['getFrame'] = function() return 101 end,
-    	['solid'] = false
-    },
-    ['tall-grass'] = {
-    	['id'] = 'tall-grass',
-    	['getFrame'] = function() return 42 end,
-    	['solid'] = false
+    	name = 'grass',
+        io = 'outside',
+        defaultType = 1,
+        types = 1,
+    	solid = false
     },
     ['half-tall-grass'] = {
-    	['id'] = 'half-tall-grass',
-    	['getFrame'] = function() return 50 end,
-    	['solid'] = false
+        name = 'half-tall-grass',
+        io = 'outside',
+        defaultType = 1,
+        types = 1,
+        solid = false
     },
-    ['sand'] = {
-        ['id'] = 'sand',
-        ['getFrame'] = function() return 62 end,
-        ['solid'] = false
+    ['tall-grass'] = {
+    	name = 'tall-grass',
+        io = 'outside',
+        defaultType = 1,
+        types = 1,
+    	solid = false
+    },
+    ['path'] = {
+        name = 'path',
+        io = 'outside',
+        solid = false
     }
 }
 
-TILE_TYPES = {
+TILE_NAMES = {
     ['base'] = {
         'grass',
-        'sand',
+        'path',
+    },
+    ['second'] = {
+        'tall-grass',
+    }
+}
 
+LOCATIONS = {
+    ['Littleroot Town'] = {
+        color = 1
     }
 }

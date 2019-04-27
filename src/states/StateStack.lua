@@ -25,7 +25,7 @@ function StateStack:render()
         state:render()
     end
 
-    love.graphics.print(#self.states, 10, VIRTUAL_HEIGHT / 2)
+    --love.graphics.print(#self.states, 10, VIRTUAL_HEIGHT / 2)
 end
 
 function StateStack:clear()

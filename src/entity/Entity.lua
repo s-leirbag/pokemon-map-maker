@@ -9,6 +9,9 @@
 Entity = Class{}
 
 function Entity:init(def)
+    self.type = def.type
+    self.name = def.name
+
     self.direction = 'down'
 
     self.animations = self:createAnimations(def.animations)
@@ -23,6 +26,10 @@ function Entity:init(def)
 
     -- halfway raised on the tile just to simulate height/perspective
     self.y = (self.mapY - 1) * TILE_SIZE - ENTITY_TILE_OFFSET
+
+    -- render offset
+    self.xOffset = def.xOffset or 0
+    self.yOffset = def.yOffset or 0
 end
 
 function Entity:changeState(name)

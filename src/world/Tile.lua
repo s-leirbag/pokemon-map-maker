@@ -8,11 +8,13 @@
 
 Tile = Class{}
 
-function Tile:init(x, y, type, tiles)
+function Tile:init(x, y, name, frame, type)
     self.x = x
     self.y = y
-    self.type = type
-    self.frame = self:updateQuad(tiles)
+    self.name = name
+    self.io = TILE_INFO[self.name].io
+    self.type = type or TILE_INFO[self.name].defaultType
+    self.frame = frame
 end
 
 function Tile:update(dt)
@@ -20,8 +22,16 @@ function Tile:update(dt)
 end
 
 function Tile:render()
-    love.graphics.draw(gTextures['tiles'], gFrames['tiles'][self.frame],
-        (self.x - 1) * TILE_SIZE, (self.y - 1) * TILE_SIZE)
+	--[[print(self.io)
+	print(self.name)
+	print(self.type)
+	print(self.frame)
+	print(gFrames[self.io])
+	print(gFrames[self.io][self.name])
+	print(gFrames[self.io][self.name][self.type])
+	print(gFrames[self.io][self.name][self.type][self.frame])]]
+	love.graphics.draw(gTextures[self.io], gFrames[self.io][self.name][self.type][self.frame],
+	(self.x - 1) * TILE_SIZE, (self.y - 1) * TILE_SIZE)
 end
 
 function Tile:updateQuad(tiles)
@@ -34,52 +44,52 @@ function Tile:updateQuad(tiles)
     local bottom_left = ''
     local top_left = ''
 
-    -- get type of surrounding tiles
+    -- get name of surrounding tiles
     if tiles[self.y - 1] then
     	if tiles[self.y - 1][self.x] then
-        	above = tiles[self.y - 1][self.x].type
+        	above = tiles[self.y - 1][self.x].name
        	end
 
        	if tiles[self.y - 1][self.x + 1] then
-       	    top_right = tiles[self.y - 1][self.x + 1].type
+       	    top_right = tiles[self.y - 1][self.x + 1].name
        	end
 
        	if tiles[self.y - 1][self.x - 1] then
-       	    top_left = tiles[self.y - 1][self.x - 1].type
+       	    top_left = tiles[self.y - 1][self.x - 1].name
        	end       	
     end
 
     if tiles[self.y + 1] then
     	if tiles[self.y + 1][self.x] then
-        	below = tiles[self.y + 1][self.x].type
+        	below = tiles[self.y + 1][self.x].name
     	end
 
     	if tiles[self.y + 1][self.x + 1] then
-    	    bottom_right = tiles[self.y + 1][self.x + 1].type
+    	    bottom_right = tiles[self.y + 1][self.x + 1].name
     	end
 
     	if tiles[self.y + 1][self.x - 1] then
-    	    bottom_left = tiles[self.y + 1][self.x - 1].type
+    	    bottom_left = tiles[self.y + 1][self.x - 1].name
     	end
     end
 
     if tiles[self.y][self.x + 1] then
-        right = tiles[self.y][self.x + 1].type
+        right = tiles[self.y][self.x + 1].name
     end
 
     if tiles[self.y][self.x - 1] then
-        left = tiles[self.y][self.x - 1].type
+        left = tiles[self.y][self.x - 1].name
     end
 
-    if self.type == 'grass' then
+    if self.name == 'grass' then
     	self:grassFindQuad(above, right, below, left, top_right, bottom_right, bottom_left, top_left)
-    elseif self.type == 'sand' then
+    elseif self.name == 'sand' then
     	self:sandFindQuad(above, right, below, left, top_right, bottom_right, bottom_left, top_left)
     end
 end
 
 function Tile:grassFindQuad(above, right, below, left, top_right, bottom_right, bottom_left, top_left)
-	-- find right frame based on surrounding types
+	-- find right frame based on surrounding names
 	if self:checkGrass(above) then
 	    if self:checkGrass(right) then
 	        if self:checkGrass(below) then
@@ -269,6 +279,6 @@ function Tile:grassFindQuad(above, right, below, left, top_right, bottom_right, 
 	end
 end
 
-function Tile:checkGrass(type)
-	return (type == 'grass' or type == 'small-ledge' or type == 'ledge')
+function Tile:checkGrass(name)
+	return (name == 'grass' or name == 'small-ledge' or name == 'ledge')
 end
