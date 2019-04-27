@@ -149,6 +149,7 @@ function Level:changeMap()
 	        self.currentLayer = self.baseLayer
 	        self.type = 1
 	        self.name = TILE_NAMES[self.layer][1]
+            self.frame = 1
 	    end
     elseif love.keyboard.isDown('2') then
     	if self.layer ~= 'second' then
@@ -156,22 +157,35 @@ function Level:changeMap()
 	        self.currentLayer = self.secondLayer
 	        self.type = 1
 	        self.name = TILE_NAMES[self.layer][1]
+            self.frame = 1
 	    end
     end
 
     -- update name
     if love.keyboard.isDown('q') then
     	self.name = TILE_NAMES[self.layer][1] or TILE_NAMES[self.layer][#TILE_NAMES[self.layer]]
+        self.type = 1
+        self.frame = 1
     elseif love.keyboard.isDown('w') then
     	self.name = TILE_NAMES[self.layer][2] or TILE_NAMES[self.layer][#TILE_NAMES[self.layer]]
+        self.type = 1
+        self.frame = 1
     elseif love.keyboard.isDown('e') then
     	self.name = TILE_NAMES[self.layer][3] or TILE_NAMES[self.layer][#TILE_NAMES[self.layer]]
+        self.type = 1
+        self.frame = 1
     elseif love.keyboard.isDown('r') then
     	self.name = TILE_NAMES[self.layer][4] or TILE_NAMES[self.layer][#TILE_NAMES[self.layer]]
+        self.type = 1
+        self.frame = 1
     elseif love.keyboard.isDown('t') then
     	self.name = TILE_NAMES[self.layer][5] or TILE_NAMES[self.layer][#TILE_NAMES[self.layer]]
+        self.type = 1
+        self.frame = 1
     elseif love.keyboard.isDown('y') then
     	self.name = TILE_NAMES[self.layer][6] or TILE_NAMES[self.layer][#TILE_NAMES[self.layer]]
+        self.type = 1
+        self.frame = 1
     end
 
     -- update type

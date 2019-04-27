@@ -15,6 +15,7 @@ function Tile:init(x, y, name, frame, type)
     self.io = TILE_INFO[self.name].io
     self.type = type or TILE_INFO[self.name].defaultType
     self.frame = frame
+    self.solid = TILE_INFO[self.name].solid
 end
 
 function Tile:update(dt)

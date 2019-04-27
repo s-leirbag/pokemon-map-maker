@@ -25,57 +25,77 @@ MOVES = {
     ['normal'] = {
         {
             text = 'Tackle',
+            type = 'normal',
+            category = 'damage',
         },
         {
             text = 'Scratch',
+            type = 'normal',
+            category = 'damage',
         },
         {
             text = 'Slam',
+            type = 'normal',
+            category = 'damage',
         },
         {
             text = 'Growl',
+            type = 'normal',
+            category = 'status',
         }
     },
     ['earth'] = {
         {
             text = 'Earthquake',
+            type = 'earth',
         },
         {
             text = 'Sand Storm',
+            type = 'earth',
         },
         {
             text = 'Ground Slam',
+            type = 'earth',
         },
         {
             text = 'Dust Shot',
+            type = 'earth',
         }
     },
     ['fire'] = {
         {
             text = 'Fire Breath',
+            type = 'fire',
         },
         {
             text = 'Burn',
+            type = 'fire',
         },
         {
             text = 'Eruption',
+            type = 'fire',
         },
         {
             text = 'Torch',
+            type = 'fire',
         }
     },
     ['forest'] = {
         {
             text = 'Leaf Spin',
+            type = 'forest',
         },
         {
             text = 'Ivy Slap',
+            type = 'forest',
         },
         {
             text = 'Flower Blast',
+            type = 'forest',
         },
         {
             text = 'Poison Dart',
+            type = 'forest',
         }
     }
 }

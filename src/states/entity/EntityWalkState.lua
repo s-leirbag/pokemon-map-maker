@@ -31,8 +31,15 @@ function EntityWalkState:attemptMove(run)
     toX = toX + DIRECTION_TO_COORDS[self.entity.direction]['x']
     toY = toY + DIRECTION_TO_COORDS[self.entity.direction]['y']
 
-    -- break out if we try to move out of the map boundaries
-    if toX < 1 or toX > self.level.width or toY < 1 or toY > self.level.height then
+    -- go idle if invalid move
+    if not (
+    	-- inside boundaries
+    	(toX >= 1 and toX <= self.level.width and toY >= 1 and toY <= self.level.height and
+    	-- "to" tile exists and is not solid
+		self.level.baseLayer.tiles[toY] and self.level.baseLayer.tiles[toY][toX] and not self.level.baseLayer.tiles[toY][toX].solid) and
+		-- 2nd layer "to" tile doesn't exist or exists and is not solid
+    	(not self.level.secondLayer.tiles[toY] or not self.level.secondLayer.tiles[toY][toX] or not self.level.secondLayer.tiles[toY][toX].solid)
+    ) then
         self.entity:changeState('idle')
         self.entity:changeAnimation('idle-' .. tostring(self.entity.direction))
         return
