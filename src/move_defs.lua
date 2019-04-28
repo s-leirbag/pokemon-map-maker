@@ -26,22 +26,26 @@ MOVES = {
         {
             text = 'Tackle',
             type = 'normal',
-            category = 'damage',
+            effect = 'damage',
+            contact = true,
         },
         {
             text = 'Scratch',
             type = 'normal',
-            category = 'damage',
+            effect = 'damage',
+            contact = true,
         },
         {
             text = 'Slam',
             type = 'normal',
-            category = 'damage',
+            effect = 'damage',
+            contact = true,
         },
         {
             text = 'Growl',
             type = 'normal',
-            category = 'status',
+            effect = 'status',
+            contact = false,
         }
     },
     ['earth'] = {
