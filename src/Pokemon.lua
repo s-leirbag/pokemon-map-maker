@@ -13,7 +13,7 @@ function Pokemon:init(def, level)
     self.type = def.type
     self.currentMoves = {}
 
-    for i = 1, 4 do
+    for i = 3, 6 do
         table.insert(self.currentMoves, MOVES[self.type][i])
     end
 
@@ -25,10 +25,10 @@ function Pokemon:init(def, level)
     self.baseDefense = def.baseDefense
     self.baseSpeed = def.baseSpeed
 
-    self.HPIV = def.HPIV
-    self.attackIV = def.attackIV
-    self.defenseIV = def.defenseIV
-    self.speedIV = def.speedIV
+    self.HPIV = math.random(0, 31)
+    self.attackIV = math.random(0, 31)
+    self.defenseIV = math.random(0, 31)
+    self.speedIV = math.random(0, 31)
 
     self.HP = self.baseHP
     self.attack = self.baseAttack
@@ -51,7 +51,8 @@ function Pokemon:calculateStats()
 end
 
 function Pokemon.getRandomDef()
-    return POKEMON_DEFS[POKEMON_IDS[math.random(#POKEMON_IDS)]]
+    return POKEMON_DEFS['aardart']
+    --return POKEMON_DEFS[POKEMON_IDS[math.random(#POKEMON_IDS)]]
 end
 
 --[[

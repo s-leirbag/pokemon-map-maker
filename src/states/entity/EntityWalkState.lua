@@ -57,11 +57,11 @@ function EntityWalkState:attemptMove(run)
         elseif love.keyboard.isDown('down') then
             self.entity.direction = 'down'
             self.entity:changeState('walk')
-        elseif love.keyboard.isDown('left') then
-            self.entity.direction = 'left'
-            self.entity:changeState('walk')
         elseif love.keyboard.isDown('right') then
             self.entity.direction = 'right'
+            self.entity:changeState('walk')  
+        elseif love.keyboard.isDown('left') then
+            self.entity.direction = 'left'
             self.entity:changeState('walk')
         else
             self.entity:changeState('idle')

@@ -82,41 +82,60 @@ function TakeTurnState:attack(attack, attacker, defender, attackerSprite, defend
 
     -- pause for half a second, then play attack animation
     Timer.after(0.5, function()
-        
-        -- attack sound
-        gSounds['powerup']:stop()
-        gSounds['powerup']:play()
 
-        -- blink the attacker sprite three times (turn on and off blinking 6 times)
-        Timer.every(0.1, function()
-            attackerSprite.blinking = not attackerSprite.blinking
-        end)
-        :limit(6)
-        :finish(function()
-            
-            -- after finishing the blink, play a hit sound and flash the opacity of
-            -- the defender a few times
-            gSounds['hit']:stop()
-            gSounds['hit']:play()
+        -- if defender is within range of attack
+        if math.abs(attacker.position - defender.position) <= attack.range then
 
-            Timer.every(0.1, function()
-                defenderSprite.opacity = defenderSprite.opacity == 0.25 and 1 or 0.25
-            end)
-            :limit(6)
-            :finish(function()
-                
-                -- shrink the defender's health bar over half a second, doing at least 1 dmg
-                local dmg = math.max(1, attacker.attack - defender.defense)
-                
-                Timer.tween(0.5, {
-                    [defenderBar] = {value = defender.currentHP - dmg}
-                })
-                :finish(function()
-                    defender.currentHP = defender.currentHP - dmg
-                    onEnd()
+            -- if attack lands
+            if math.random(100) < attack.accuracy * (math.max(3, 3 + (attacker.statStages.accuracy - defender.statStages.evasion)) / math.max(3, 3 - (attacker.statStages.accuracy - defender.statStages.evasion))) then
+
+                -- attack sound
+                gSounds['powerup']:stop()
+                gSounds['powerup']:play()
+
+                -- blink the attacker sprite three times (turn on and off blinking 6 times)
+                Timer.every(0.1, function()
+                    attackerSprite.blinking = not attackerSprite.blinking
                 end)
-            end)
-        end)
+                :limit(6)
+                :finish(function()
+                    
+                    -- after finishing the blink, play a hit sound and flash the opacity of
+                    -- the defender a few times
+                    gSounds['hit']:stop()
+                    gSounds['hit']:play()
+
+                    Timer.every(0.1, function()
+                        defenderSprite.opacity = defenderSprite.opacity == 0.25 and 1 or 0.25
+                    end)
+                    :limit(6)
+                    :finish(function()
+                        -- shrink the defender's health bar over half a second, doing at least 1 dmg
+                        local dmg = math.max(1, attacker.attack - defender.defense)
+                        
+                        Timer.tween(0.5, {
+                            [defenderBar] = {value = defender.currentHP - dmg}
+                        })
+                        :finish(function()
+                            defender.currentHP = defender.currentHP - dmg
+                            onEnd()
+                        end)
+                    end)
+                end)
+            else
+                -- pop attack message
+                gStateStack:pop()
+                -- push a message saying attack missed
+                gStateStack:push(BattleMessageState(attacker.name .. '\'s attack missed!',
+                    function() onEnd() end, false))
+            end
+        else
+            -- pop attack message
+            gStateStack:pop()
+            -- push a message saying defender is too far
+            gStateStack:push(BattleMessageState(defender.name .. ' is too far!',
+                function() onEnd() end, false))
+        end
     end)
 end
 

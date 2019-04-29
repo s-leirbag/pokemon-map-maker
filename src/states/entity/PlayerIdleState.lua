@@ -27,21 +27,21 @@ function PlayerIdleState:update(dt)
                 self.entity:changeState('walk')
             end
         end)
-    elseif love.keyboard.isDown('left') then
-        self.entity.direction = 'left'
-        self.entity:changeAnimation('idle-' .. self.entity.direction)
-
-        Timer.after(0.06, function()
-            if self.entity.stateMachine.currentStateName == 'idle' and love.keyboard.isDown('left') then
-                self.entity:changeState('walk')
-            end
-        end)
     elseif love.keyboard.isDown('right') then
         self.entity.direction = 'right'
         self.entity:changeAnimation('idle-' .. self.entity.direction)
 
         Timer.after(0.06, function()
             if self.entity.stateMachine.currentStateName == 'idle' and love.keyboard.isDown('right') then
+                self.entity:changeState('walk')
+            end
+        end)
+    elseif love.keyboard.isDown('left') then
+        self.entity.direction = 'left'
+        self.entity:changeAnimation('idle-' .. self.entity.direction)
+
+        Timer.after(0.06, function()
+            if self.entity.stateMachine.currentStateName == 'idle' and love.keyboard.isDown('left') then
                 self.entity:changeState('walk')
             end
         end)

@@ -15,6 +15,7 @@ function ProgressBar:init(def)
     self.width = def.width
     self.height = def.height
     
+    self.healthBar = def.healthBar
     self.color = def.color
 
     self.value = def.value
@@ -38,7 +39,18 @@ function ProgressBar:render()
     local renderWidth = (self.value / self.max) * self.width
 
     -- draw main bar, with calculated width based on value / max
-    love.graphics.setColor(self.color.r, self.color.g, self.color.b, 1)
+    if self.healthBar then
+        -- color based on health
+        if self.value > self.max / 2 then
+            love.graphics.setColor(0.21, 0.82, 0.20, 1)
+        elseif self.value > self.max / 5 then
+            love.graphics.setColor(0.85, 0.78, 0.13, 1)
+        else
+            love.graphics.setColor(0.74, 0.13, 0.13, 1)
+        end
+    else
+        love.graphics.setColor(self.color.r, self.color.g, self.color.b, 1)
+    end
     
     if self.value > 0 then
         love.graphics.rectangle('fill', self.x, self.y, renderWidth, self.height, 3)

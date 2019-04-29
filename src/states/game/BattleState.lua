@@ -34,9 +34,9 @@ function BattleState:init(player)
         y = VIRTUAL_HEIGHT - 80,
         width = 152,
         height = 6,
-        color = {r = 0.74, g = 0.13, b = 0.13},
+        healthBar = true,
         value = self.player.party.pokemon[1].currentHP,
-        max = self.player.party.pokemon[1].HP
+        max = self.player.party.pokemon[1].HP,
     }
 
     self.opponentHealthBar = ProgressBar {
@@ -44,7 +44,7 @@ function BattleState:init(player)
         y = 8,
         width = 152,
         height = 6,
-        color = {r = 0.74, g = 0.13, b = 0.13},
+        healthBar = true,
         value = self.opponent.party.pokemon[1].currentHP,
         max = self.opponent.party.pokemon[1].HP
     }
@@ -70,6 +70,26 @@ function BattleState:init(player)
     -- references to active pokemon
     self.playerPokemon = self.player.party.pokemon[1]
     self.opponentPokemon = self.opponent.party.pokemon[1]
+
+    self.playerPokemon.position = -2
+    self.playerPokemon.accuracy = 1
+    self.playerPokemon.evasion = 1
+    self.playerPokemon.statStages = {}
+    self.playerPokemon.statStages.attack = 0
+    self.playerPokemon.statStages.defense = 0
+    self.playerPokemon.statStages.speed = 0
+    self.playerPokemon.statStages.accuracy = 0
+    self.playerPokemon.statStages.evasion = 0
+
+    self.opponentPokemon.position = 2
+    self.opponentPokemon.accuracy = 1
+    self.opponentPokemon.evasion = 1
+    self.opponentPokemon.statStages = {}
+    self.opponentPokemon.statStages.attack = 0
+    self.opponentPokemon.statStages.defense = 0
+    self.opponentPokemon.statStages.speed = 0
+    self.opponentPokemon.statStages.accuracy = 0
+    self.opponentPokemon.statStages.evasion = 0
 end
 
 function BattleState:enter(params)

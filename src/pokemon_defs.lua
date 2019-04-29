@@ -19,11 +19,7 @@ POKEMON_DEFS = {
         baseAttack = 9,
         baseDefense = 5,
         baseSpeed = 6,
-        HPIV = 3,
-        attackIV = 4,
-        defenseIV = 2,
-        speedIV = 3,
-        type = 'earth'
+        type = 'normal'
     },
     ['agnite'] = {
         name = 'Agnite',
@@ -33,10 +29,6 @@ POKEMON_DEFS = {
         baseAttack = 7,
         baseDefense = 3,
         baseSpeed = 7,
-        HPIV = 3,
-        attackIV = 4,
-        defenseIV = 2,
-        speedIV = 4,
         type = 'fire'
     },
     ['anoleaf'] = {
@@ -47,10 +39,6 @@ POKEMON_DEFS = {
         baseAttack = 5,
         baseDefense = 5,
         baseSpeed = 6,
-        HPIV = 3,
-        attackIV = 3,
-        defenseIV = 3,
-        speedIV = 4,
         type = 'forest'
     },
     ['bamboon'] = {
@@ -61,10 +49,6 @@ POKEMON_DEFS = {
         baseAttack = 6,
         baseDefense = 4,
         baseSpeed = 7,
-        HPIV = 3,
-        attackIV = 3,
-        defenseIV = 2,
-        speedIV = 5,
         type = 'forest'
     },
     ['cardiwing'] = {
@@ -75,10 +59,6 @@ POKEMON_DEFS = {
         baseAttack = 7,
         baseDefense = 3,
         baseSpeed = 7,
-        HPIV = 3,
-        attackIV = 4,
-        defenseIV = 2,
-        speedIV = 4,
         type = 'fire'
     }
 }

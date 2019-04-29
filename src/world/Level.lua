@@ -27,7 +27,7 @@ function Level:init(width, height)
         name = 'boy',
         animations = ENTITY_DEFS['player']['boy'].animations,
         mapX = 1,
-        mapY = 1,
+        mapY = 10,
         width = ENTITY_DEFS['player']['boy'].width,
         height = ENTITY_DEFS['player']['boy'].height,
         xOffset = ENTITY_DEFS['player']['boy'].xOffset,

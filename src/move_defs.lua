@@ -21,32 +21,74 @@ MOVE_TYPES = {
     ['poison dart'] = 4
 }]]
 
+-- range is -6 to 6
+MAX_RANGE = 12
+
 MOVES = {
     ['normal'] = {
         {
             text = 'Tackle',
             type = 'normal',
-            effect = 'damage',
+            power = 40,
+            pp = 35,
+            accuracy = 100,
             contact = true,
+            range = 5,
         },
         {
             text = 'Scratch',
             type = 'normal',
-            effect = 'damage',
+            power = 40,
+            pp = 35,
+            accuracy = 100,
             contact = true,
+            range = 5,
         },
         {
             text = 'Slam',
             type = 'normal',
-            effect = 'damage',
+            power = 80,
+            pp = 20,
+            accuracy = 75,
             contact = true,
+            range = 5,
         },
         {
             text = 'Growl',
             type = 'normal',
-            effect = 'status',
+            power = 0,
+            pp = 40,
+            accuracy = 100,
+            stats = {
+                {'attack', 1}
+            },
             contact = false,
-        }
+            range = MAX_RANGE,
+        },
+        {
+            text = 'Reel In',
+            type = 'normal',
+            power = 0,
+            pp = 25,
+            accuracy = 100,
+            stats = {
+                {'range', 5}
+            },
+            contact = false,
+            range = MAX_RANGE,
+        },
+        {
+            text = 'Retreat',
+            type = 'normal',
+            power = 0,
+            pp = 25,
+            accuracy = 100,
+            stats = {
+                {'range', -5}
+            },
+            contact = false,
+            range = MAX_RANGE,
+        },
     },
     ['earth'] = {
         {
