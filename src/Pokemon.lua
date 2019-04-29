@@ -19,10 +19,6 @@ function Pokemon:init(def, level)
         self.pp[MOVES[self.type][i].text] = MOVES[self.type][i].basePP
     end
 
-    for k, stat in pairs(self.currentMoves[4].bStats) do
-        print(stat)
-    end
-
     self.battleSpriteFront = def.battleSpriteFront
     self.battleSpriteBack = def.battleSpriteBack
 
@@ -57,7 +53,7 @@ function Pokemon:calculateStats()
 end
 
 function Pokemon.getRandomDef()
-    return POKEMON_DEFS['aardart']
+    return POKEMON_DEFS['zigzagoon']
     --return POKEMON_DEFS[POKEMON_IDS[math.random(#POKEMON_IDS)]]
 end
 

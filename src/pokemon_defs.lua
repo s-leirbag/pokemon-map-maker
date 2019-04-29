@@ -7,18 +7,18 @@
 ]]
 
 POKEMON_IDS = {
-    'aardart', 'agnite', 'anoleaf', 'bamboon', 'cardiwing'
+    'zigzagoon', 'agnite', 'anoleaf', 'bamboon', 'cardiwing'
 }
 
 POKEMON_DEFS = {
-    ['aardart'] = {
-        name = 'Aardart',
-        battleSpriteFront = 'aardart-front',
-        battleSpriteBack = 'aardart-back',
-        baseHP = 14,
-        baseAttack = 9,
-        baseDefense = 5,
-        baseSpeed = 6,
+    ['zigzagoon'] = {
+        name = 'Zigzagoon',
+        battleSpriteFront = 'zigzagoon-front',
+        battleSpriteBack = 'zigzagoon-back',
+        baseHP = 38,
+        baseAttack = 30,
+        baseDefense = 41,
+        baseSpeed = 60,
         type = 'normal'
     },
     ['agnite'] = {

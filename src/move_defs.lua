@@ -60,9 +60,8 @@ MOVES = {
             accuracy = 100,
             contact = false,
             range = MAX_RANGE,
-            power = 0,
             pStats = {
-                {'attack', 1}
+                attack = 1,
             },
         },
         {
@@ -72,9 +71,8 @@ MOVES = {
             accuracy = 100,
             contact = false,
             range = MAX_RANGE,
-            power = 0,
-            bStats = {
-                range = 5,
+            pStats = {
+                position = 5,
             },
         },
         {
@@ -84,9 +82,8 @@ MOVES = {
             accuracy = 100,
             contact = false,
             range = MAX_RANGE,
-            power = 0,
-            bStats = {
-                range = -5,
+            pStats = {
+                position = -5,
             },
         },
     },

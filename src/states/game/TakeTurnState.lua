@@ -83,6 +83,8 @@ function TakeTurnState:attack(move, attacker, defender, attackerSprite, defender
     Timer.after(0.5, function()
         -- if move still has power points
         if attacker.pp[move.text] > 0 then
+            -- lower move's power points by 1
+            attacker.pp[move.text] = attacker.pp[move.text] - 1
 
             -- if defender is within range of move
             if math.abs(attacker.position - defender.position) <= move.range then
@@ -91,10 +93,7 @@ function TakeTurnState:attack(move, attacker, defender, attackerSprite, defender
                 local accStatStage = attacker.statStages.accuracy - defender.statStages.evasion
                 accStatStage = math.abs(accStatStage) > 6 and 6 * math.abs(accStatStage) / accStatStage or accStatStage
 
-                if math.random(100) < move.accuracy * math.max(3, 3 + accStatStage) / math.max(3, 3 - accStatStage) then
-                    -- lower move's power points by 1
-                    attacker.pp[move.text] = attacker.pp[move.text] - 1
-
+                if math.random(100) <= move.accuracy * math.max(3, 3 + accStatStage) / math.max(3, 3 - accStatStage) then
                     -- attack sound
                     gSounds['powerup']:stop()
                     gSounds['powerup']:play()
@@ -117,9 +116,19 @@ function TakeTurnState:attack(move, attacker, defender, attackerSprite, defender
                             end)
                             :limit(6)
                             :finish(function()
-                                -- shrink the defender's health bar over half a second, doing at least 1 dmg
-                                local dmg = math.max(1, attacker.attack - defender.defense)
-                                
+                                local dmg = ( ((2 * attacker.level / 5) + 2) * move.power * attacker.attack / defender.defense ) / 50 + 2
+
+                                -- multipliers
+                                local multiplier = math.random(0.85, 1)
+                                if math.random(16) == 1 then
+                                    multiplier = multiplier * 1.5
+                                end
+                                if attacker.type == move.type then
+                                    multiplier = multiplier * 1.5
+                                end
+
+                                dmg = dmg * multiplier
+
                                 Timer.tween(0.5, {
                                     [defenderBar] = {value = defender.currentHP - dmg}
                                 })
@@ -131,8 +140,54 @@ function TakeTurnState:attack(move, attacker, defender, attackerSprite, defender
 
                             -- if move affects battle's general stats
                             if move.bStats then
-                                for k, stat in pairs(move.bStats) do
-                                    
+
+                            end
+
+                            -- if move affects battle's general stats
+                            if move.pStats then
+                                if move.pStats.attack then
+                                    if math.abs(attacker.statStages.attack) == 6 then
+                                        if math.random(2) == 1 then
+                                            gStateStack:push(BattleMessageState(attacker.name .. '\'s attack won\'t go any ' .. attacker.statStages.attack == 6 and 'higher!' or 'lower!',
+                                                function() end, false))
+                                        else
+                                            gStateStack:push(BattleMessageState('Nothing happened!',
+                                                function() end, false))
+                                        end
+                                    else
+                                        attacker.statStages.attack = attacker.statStages.attack + move.pStats.attack
+
+                                        if math.abs(attacker.statStages.attack) > 6 then
+                                            local actualEffect = move.pStats.attack - (attacker.statStages.attack - 6 * math.abs(attacker.statStages.attack) / attacker.statStages.attack)
+                                            attacker.statStages.attack = 6 * math.abs(attacker.statStages.attack) / attacker.statStages.attack
+                                        else
+                                            local actualEffect = move.pStats.attack
+                                        end
+
+                                        if actualEffect == 1 then
+                                            gStateStack:push(BattleMessageState(attacker.name .. '\'s attack rose!',
+                                                function() end, false))
+                                        elseif actualEffect == 2 then
+                                            gStateStack:push(BattleMessageState(attacker.name .. '\'s attack sharply rose!',
+                                                function() end, false))
+                                        elseif actualEffect >= 3 then
+                                            gStateStack:push(BattleMessageState(attacker.name .. '\'s attack rose drastically!',
+                                                function() end, false))
+                                        elseif actualEffect == -1 then
+                                            gStateStack:push(BattleMessageState(attacker.name .. '\'s attack fell!',
+                                                function() end, false))
+                                        elseif actualEffect == -2 then
+                                            gStateStack:push(BattleMessageState(attacker.name .. '\'s attack harshly fell!',
+                                                function() end, false))
+                                        elseif actualEffect <= -3 then
+                                            gStateStack:push(BattleMessageState(attacker.name .. '\'s attack severely fell!',
+                                                function() end, false))
+                                        end
+                                    end
+                                end
+
+                                if move.pStats.defense then
+
                                 end
                             end
                         end
