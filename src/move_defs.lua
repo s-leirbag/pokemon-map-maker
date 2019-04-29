@@ -21,7 +21,7 @@ MOVE_TYPES = {
     ['poison dart'] = 4
 }]]
 
--- range is -6 to 6
+-- range from pokemon to pokemon is -6 to 6
 MAX_RANGE = 12
 
 MOVES = {
@@ -29,65 +29,65 @@ MOVES = {
         {
             text = 'Tackle',
             type = 'normal',
-            power = 40,
-            pp = 35,
+            basePP = 35,
             accuracy = 100,
             contact = true,
             range = 5,
+            power = 40,
         },
         {
             text = 'Scratch',
             type = 'normal',
-            power = 40,
-            pp = 35,
+            basePP = 35,
             accuracy = 100,
             contact = true,
             range = 5,
+            power = 40,
         },
         {
             text = 'Slam',
             type = 'normal',
-            power = 80,
-            pp = 20,
+            basePP = 20,
             accuracy = 75,
             contact = true,
             range = 5,
+            power = 80,
         },
         {
             text = 'Growl',
             type = 'normal',
-            power = 0,
-            pp = 40,
+            basePP = 40,
             accuracy = 100,
-            stats = {
-                {'attack', 1}
-            },
             contact = false,
             range = MAX_RANGE,
+            power = 0,
+            pStats = {
+                {'attack', 1}
+            },
         },
         {
             text = 'Reel In',
             type = 'normal',
-            power = 0,
-            pp = 25,
+            basePP = 25,
             accuracy = 100,
-            stats = {
-                {'range', 5}
-            },
             contact = false,
             range = MAX_RANGE,
+            power = 0,
+            bStats = {
+                range = 5,
+            },
         },
         {
             text = 'Retreat',
             type = 'normal',
-            power = 0,
-            pp = 25,
+            basePP = 25,
             accuracy = 100,
-            stats = {
-                {'range', -5}
-            },
             contact = false,
             range = MAX_RANGE,
+            power = 0,
+            bStats = {
+                range = -5,
+            },
         },
     },
     ['earth'] = {

@@ -12,9 +12,15 @@ function Pokemon:init(def, level)
     self.name = def.name
     self.type = def.type
     self.currentMoves = {}
+    self.pp = {}
 
     for i = 3, 6 do
         table.insert(self.currentMoves, MOVES[self.type][i])
+        self.pp[MOVES[self.type][i].text] = MOVES[self.type][i].basePP
+    end
+
+    for k, stat in pairs(self.currentMoves[4].bStats) do
+        print(stat)
     end
 
     self.battleSpriteFront = def.battleSpriteFront

@@ -8,7 +8,7 @@
 
 TakeTurnState = Class{__includes = BaseState}
 
-function TakeTurnState:init(battleState, playerAttack)
+function TakeTurnState:init(battleState, playerMove)
     self.battleState = battleState
     self.playerPokemon = self.battleState.player.party.pokemon[1]
     self.opponentPokemon = self.battleState.opponent.party.pokemon[1]
@@ -24,8 +24,8 @@ function TakeTurnState:init(battleState, playerAttack)
         self.secondSprite = self.opponentSprite
         self.firstBar = self.battleState.playerHealthBar
         self.secondBar = self.battleState.opponentHealthBar
-        self.firstAttack = playerAttack
-        self.secondAttack = MOVES[self.secondPokemon.type][math.random(#MOVES[self.secondPokemon.type])]
+        self.firstMove = playerMove
+        self.secondMove = MOVES[self.secondPokemon.type][math.random(#MOVES[self.secondPokemon.type])]
     else
         self.firstPokemon = self.opponentPokemon
         self.secondPokemon = self.playerPokemon
@@ -33,13 +33,13 @@ function TakeTurnState:init(battleState, playerAttack)
         self.secondSprite = self.playerSprite
         self.firstBar = self.battleState.opponentHealthBar
         self.secondBar = self.battleState.playerHealthBar
-        self.firstAttack = MOVES[self.secondPokemon.type][math.random(#MOVES[self.secondPokemon.type])]
-        self.secondAttack = playerAttack
+        self.firstMove = MOVES[self.secondPokemon.type][math.random(#MOVES[self.secondPokemon.type])]
+        self.secondMove = playerMove
     end
 end
 
 function TakeTurnState:enter(params)
-    self:attack(self.firstAttack, self.firstPokemon, self.secondPokemon, self.firstSprite, self.secondSprite, self.firstBar, self.secondBar,
+    self:attack(self.firstMove, self.firstPokemon, self.secondPokemon, self.firstSprite, self.secondSprite, self.firstBar, self.secondBar,
 
     function()
 
@@ -52,7 +52,7 @@ function TakeTurnState:enter(params)
             return
         end
 
-        self:attack(self.secondAttack, self.secondPokemon, self.firstPokemon, self.secondSprite, self.firstSprite, self.secondBar, self.firstBar,
+        self:attack(self.secondMove, self.secondPokemon, self.firstPokemon, self.secondSprite, self.firstSprite, self.secondBar, self.firstBar,
     
         function()
 
@@ -72,68 +72,95 @@ function TakeTurnState:enter(params)
     end)
 end
 
-function TakeTurnState:attack(attack, attacker, defender, attackerSprite, defenderSprite, attackerkBar, defenderBar, onEnd)
-    
+function TakeTurnState:attack(move, attacker, defender, attackerSprite, defenderSprite, attackerkBar, defenderBar, onEnd)
     -- first, push a message saying who's attacking, then flash the attacker
     -- this message is not allowed to take input at first, so it stays on the stack
     -- during the animation
-    gStateStack:push(BattleMessageState(attacker.name .. ' used ' .. attack.text .. '!',
+    gStateStack:push(BattleMessageState(attacker.name .. ' used ' .. move.text .. '!',
         function() end, false))
 
-    -- pause for half a second, then play attack animation
+    -- pause for half a second, then play move animation
     Timer.after(0.5, function()
+        -- if move still has power points
+        if attacker.pp[move.text] > 0 then
 
-        -- if defender is within range of attack
-        if math.abs(attacker.position - defender.position) <= attack.range then
+            -- if defender is within range of move
+            if math.abs(attacker.position - defender.position) <= move.range then
 
-            -- if attack lands
-            if math.random(100) < attack.accuracy * (math.max(3, 3 + (attacker.statStages.accuracy - defender.statStages.evasion)) / math.max(3, 3 - (attacker.statStages.accuracy - defender.statStages.evasion))) then
+                -- if move lands
+                local accStatStage = attacker.statStages.accuracy - defender.statStages.evasion
+                accStatStage = math.abs(accStatStage) > 6 and 6 * math.abs(accStatStage) / accStatStage or accStatStage
 
-                -- attack sound
-                gSounds['powerup']:stop()
-                gSounds['powerup']:play()
+                if math.random(100) < move.accuracy * math.max(3, 3 + accStatStage) / math.max(3, 3 - accStatStage) then
+                    -- lower move's power points by 1
+                    attacker.pp[move.text] = attacker.pp[move.text] - 1
 
-                -- blink the attacker sprite three times (turn on and off blinking 6 times)
-                Timer.every(0.1, function()
-                    attackerSprite.blinking = not attackerSprite.blinking
-                end)
-                :limit(6)
-                :finish(function()
-                    
-                    -- after finishing the blink, play a hit sound and flash the opacity of
-                    -- the defender a few times
-                    gSounds['hit']:stop()
-                    gSounds['hit']:play()
+                    -- attack sound
+                    gSounds['powerup']:stop()
+                    gSounds['powerup']:play()
 
+                    -- blink the attacker sprite three times (turn on and off blinking 6 times)
                     Timer.every(0.1, function()
-                        defenderSprite.opacity = defenderSprite.opacity == 0.25 and 1 or 0.25
+                        attackerSprite.blinking = not attackerSprite.blinking
                     end)
                     :limit(6)
                     :finish(function()
-                        -- shrink the defender's health bar over half a second, doing at least 1 dmg
-                        local dmg = math.max(1, attacker.attack - defender.defense)
-                        
-                        Timer.tween(0.5, {
-                            [defenderBar] = {value = defender.currentHP - dmg}
-                        })
-                        :finish(function()
-                            defender.currentHP = defender.currentHP - dmg
-                            onEnd()
-                        end)
+                        -- if move is a damage dealing move
+                        if move.power then
+                            -- after finishing the blink, play a hit sound and flash the opacity of
+                            -- the defender a few times
+                            gSounds['hit']:stop()
+                            gSounds['hit']:play()
+
+                            Timer.every(0.1, function()
+                                defenderSprite.opacity = defenderSprite.opacity == 0.25 and 1 or 0.25
+                            end)
+                            :limit(6)
+                            :finish(function()
+                                -- shrink the defender's health bar over half a second, doing at least 1 dmg
+                                local dmg = math.max(1, attacker.attack - defender.defense)
+                                
+                                Timer.tween(0.5, {
+                                    [defenderBar] = {value = defender.currentHP - dmg}
+                                })
+                                :finish(function()
+                                    defender.currentHP = defender.currentHP - dmg
+                                    onEnd()
+                                end)
+                            end)
+
+                            -- if move affects battle's general stats
+                            if move.bStats then
+                                for k, stat in pairs(move.bStats) do
+                                    
+                                end
+                            end
+                        end
                     end)
-                end)
+                else
+                    -- pop attack message
+                    gStateStack:pop()
+                    -- push a message saying attack missed
+                    gStateStack:push(BattleMessageState(attacker.name .. '\'s attack missed!',
+                        function() onEnd() end, false))
+                end
             else
                 -- pop attack message
                 gStateStack:pop()
-                -- push a message saying attack missed
-                gStateStack:push(BattleMessageState(attacker.name .. '\'s attack missed!',
-                    function() onEnd() end, false))
+                -- push a message saying defender is too far
+                if math.random(2) == 1 then
+                    gStateStack:push(BattleMessageState(defender.name .. ' is too far!',
+                        function() onEnd() end, false))
+                else
+                    gStateStack:push(BattleMessageState(defender.name .. ' is out of range!',
+                        function() onEnd() end, false))
+                end
             end
         else
             -- pop attack message
             gStateStack:pop()
-            -- push a message saying defender is too far
-            gStateStack:push(BattleMessageState(defender.name .. ' is too far!',
+            -- push a message saying out of pp
+            gStateStack:push(BattleMessageState(move.name .. 'has no pp left!',
                 function() onEnd() end, false))
         end
     end)
