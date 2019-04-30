@@ -25,7 +25,7 @@ function TakeTurnState:init(battleState, playerMove)
         self.firstBar = self.battleState.playerHealthBar
         self.secondBar = self.battleState.opponentHealthBar
         self.firstMove = playerMove
-        self.secondMove = MOVES[self.secondPokemon.type][math.random(#MOVES[self.secondPokemon.type])]
+        self.secondMove = MOVES[self.secondPokemon.type][math.random(3, 6)]
     else
         self.firstPokemon = self.opponentPokemon
         self.secondPokemon = self.playerPokemon
@@ -33,7 +33,7 @@ function TakeTurnState:init(battleState, playerMove)
         self.secondSprite = self.playerSprite
         self.firstBar = self.battleState.opponentHealthBar
         self.secondBar = self.battleState.playerHealthBar
-        self.firstMove = MOVES[self.secondPokemon.type][math.random(#MOVES[self.secondPokemon.type])]
+        self.firstMove = MOVES[self.secondPokemon.type][math.random(3, 6)]
         self.secondMove = playerMove
     end
 end
@@ -42,30 +42,10 @@ function TakeTurnState:enter(params)
     self:attack(self.firstMove, self.firstPokemon, self.secondPokemon, self.firstSprite, self.secondSprite, self.firstBar, self.secondBar,
 
     function()
-
-        -- remove the message
-        gStateStack:pop()
-
-        -- check to see whether the player or enemy died
-        if self:checkDeaths() then
-            gStateStack:pop()
-            return
-        end
-
         Timer.after(0.5, function()
             self:attack(self.secondMove, self.secondPokemon, self.firstPokemon, self.secondSprite, self.firstSprite, self.secondBar, self.firstBar,
             
             function()
-
-                -- remove the message
-                gStateStack:pop()
-
-                -- check to see whether the player or enemy died
-                if self:checkDeaths() then 
-                    gStateStack:pop()
-                    return
-                end
-
                 -- remove the last attack state from the stack
                 gStateStack:pop()
                 gStateStack:push(BattleMenuState(self.battleState))
@@ -75,14 +55,12 @@ function TakeTurnState:enter(params)
 end
 
 function TakeTurnState:attack(move, attacker, defender, attackerSprite, defenderSprite, attackerkBar, defenderBar, onEnd)
-    -- first, push a message saying who's attacking, then flash the attacker
     -- this message is not allowed to take input at first, so it stays on the stack
     -- during the animation
     gStateStack:push(BattleMessageState(attacker.name .. ' used ' .. move.text .. '!',
         function() end, false))
 
-    -- pause for half a second, then play move animation
-    Timer.after(0.5, function()
+    Timer.after(0.8, function()
         -- if move still has power points
         if attacker.pp[move.text] > 0 then
             -- lower move's power points by 1
@@ -94,7 +72,6 @@ function TakeTurnState:attack(move, attacker, defender, attackerSprite, defender
                 -- if move lands
                 local accStatStage = attacker.statStages.accuracy - defender.statStages.evasion
                 accStatStage = math.abs(accStatStage) > 6 and 6 * math.abs(accStatStage) / accStatStage or accStatStage
-
                 if math.random(100) <= move.accuracy * math.max(3, 3 + accStatStage) / math.max(3, 3 - accStatStage) then
                     -- attack sound
                     gSounds['powerup']:stop()
@@ -106,131 +83,212 @@ function TakeTurnState:attack(move, attacker, defender, attackerSprite, defender
                     end)
                     :limit(6)
                     :finish(function()
-                        if move.power then
-
-                        self:power(move, attacker, defender, attackerBar, defenderBar, attackerSprite, defenderSprite)
-
-                        self:bStats(move, attacker, defender)
-
-                        self:pStats(move, attacker, defender)
-
-                        self:oStats(move, attacker, defender)
-
+                        -- pop attack message
+                        gStateStack:pop()
+                        
+                        if move.oStats then
+                            self:power(false, move, attacker, defender, attackerBar, defenderBar, attackerSprite, defenderSprite, onEnd)
+                            self:bStats(false, move, attacker, defender, onEnd)
+                            self:pStats(false, move, attacker, defender, onEnd)
+                            self:oStats(true, move, attacker, defender, onEnd)
+                        elseif move.pStats then
+                            self:power(false, move, attacker, defender, attackerBar, defenderBar, attackerSprite, defenderSprite, onEnd)
+                            self:bStats(false, move, attacker, defender, onEnd)
+                            self:pStats(true, move, attacker, defender, onEnd)
+                        elseif move.bStats then
+                            self:power(false, move, attacker, defender, attackerBar, defenderBar, attackerSprite, defenderSprite, onEnd)
+                            self:bStats(true, move, attacker, defender, onEnd)
+                        else
+                            self:power(true, move, attacker, defender, attackerBar, defenderBar, attackerSprite, defenderSprite, onEnd)
+                        end
                     end)
                 else
                     -- pop attack message
                     gStateStack:pop()
                     -- push a message saying attack missed
                     gStateStack:push(BattleMessageState(attacker.name .. '\'s attack missed!',
-                        function() onEnd() end, false))
+                        function() onEnd() end))
                 end
             else
                 -- pop attack message
-                gStateStack:pop()
+                    gStateStack:pop()
                 -- push a message saying defender is too far
                 if math.random(2) == 1 then
                     gStateStack:push(BattleMessageState(defender.name .. ' is too far!',
-                        function() onEnd() end, false))
+                        function() onEnd() end))
                 else
                     gStateStack:push(BattleMessageState(defender.name .. ' is out of range!',
-                        function() onEnd() end, false))
+                        function() onEnd() end))
                 end
             end
         else
             -- pop attack message
-            gStateStack:pop()
+                    gStateStack:pop()
             -- push a message saying out of pp
             gStateStack:push(BattleMessageState(move.name .. 'has no pp left!',
-                function() onEnd() end, false))
+                function() onEnd() end))
         end
     end)
 end
 
-function TakeTurnState:power(move, attacker, defender, attackerBar, defenderBar, attackerSprite, defenderSprite)
-    -- after finishing the blink, play a hit sound and flash the opacity of
-    -- the defender a few times
-    gSounds['hit']:stop()
-    gSounds['hit']:play()
+function TakeTurnState:power(last, move, attacker, defender, attackerBar, defenderBar, attackerSprite, defenderSprite, onEnd)
+    if move.power then
+        -- after finishing the blink, play a hit sound and flash the opacity of
+        -- the defender a few times
+        gSounds['hit']:stop()
+        gSounds['hit']:play()
 
-    Timer.every(0.1, function()
-        defenderSprite.opacity = defenderSprite.opacity == 0.25 and 1 or 0.25
-    end)
-    :limit(6)
-    :finish(function()
-        local dmg = ( ((2 * attacker.level / 5) + 2) * move.power * attacker.attack / defender.defense ) / 50 + 2
-
-        -- multipliers
-        local multiplier = math.random(0.85, 1)
-        if math.random(16) == 1 then
-            multiplier = multiplier * 1.5
-        end
-        if attacker.type == move.type then
-            multiplier = multiplier * 1.5
-        end
-
-        dmg = dmg * multiplier
-
-        Timer.tween(0.5, {
-            [defenderBar] = {value = defender.currentHP - dmg}
-        })
-        :finish(function()
-            defender.currentHP = defender.currentHP - dmg
+        Timer.every(0.1, function()
+            defenderSprite.opacity = defenderSprite.opacity == 0.25 and 1 or 0.25
         end)
-    end)
-end
+        :limit(6)
+        :finish(function()
+            local dmg = ( ((2 * attacker.level / 5) + 2) * move.power * attacker.attack / defender.defense ) / 50 + 2
 
-function TakeTurnState:bStats(move, attacker, defender)
-
-end
-
-function TakeTurnState:pStats(move, attacker, defender)
-    if move.pStats.attack then
-        if math.abs(attacker.statStages.attack) == 6 then
-            if math.random(2) == 1 then
-                gStateStack:push(BattleMessageState(attacker.name .. '\'s attack won\'t go any ' .. attacker.statStages.attack == 6 and 'higher!' or 'lower!',
-                    function() end, false))
-            else
-                gStateStack:push(BattleMessageState('Nothing happened!',
-                    function() end, false))
+            -- multipliers
+            local multiplier = math.random(0.85, 1)
+            if math.random(16) == 1 then
+                multiplier = multiplier * 1.5
             end
-        else
-            attacker.statStages.attack = attacker.statStages.attack + move.pStats.attack
-
-            if math.abs(attacker.statStages.attack) > 6 then
-                local actualEffect = move.pStats.attack - (attacker.statStages.attack - 6 * math.abs(attacker.statStages.attack) / attacker.statStages.attack)
-                attacker.statStages.attack = 6 * math.abs(attacker.statStages.attack) / attacker.statStages.attack
-            else
-                local actualEffect = move.pStats.attack
+            if attacker.type == move.type then
+                multiplier = multiplier * 1.5
             end
 
-            if actualEffect == 1 then
-                gStateStack:push(BattleMessageState(attacker.name .. '\'s attack rose!',
-                    function() end, false))
-            elseif actualEffect == 2 then
-                gStateStack:push(BattleMessageState(attacker.name .. '\'s attack sharply rose!',
-                    function() end, false))
-            elseif actualEffect >= 3 then
-                gStateStack:push(BattleMessageState(attacker.name .. '\'s attack rose drastically!',
-                    function() end, false))
-            elseif actualEffect == -1 then
-                gStateStack:push(BattleMessageState(attacker.name .. '\'s attack fell!',
-                    function() end, false))
-            elseif actualEffect == -2 then
-                gStateStack:push(BattleMessageState(attacker.name .. '\'s attack harshly fell!',
-                    function() end, false))
-            elseif actualEffect <= -3 then
-                gStateStack:push(BattleMessageState(attacker.name .. '\'s attack severely fell!',
-                    function() end, false))
+            dmg = dmg * multiplier
+
+            Timer.tween(0.5, {
+                [defenderBar] = {value = defender.currentHP - dmg}
+            })
+            :finish(function()
+                defender.currentHP = defender.currentHP - dmg
+
+                -- check to see whether the player or enemy died
+                if self:checkDeaths() then 
+                    gStateStack:pop()
+                    return
+                end
+
+                if last == true then
+                    onEnd()
+                end
+            end)
+        end)
+    end
+end
+
+function TakeTurnState:bStats(last, move, attacker, defender, onEnd)
+
+end
+
+function TakeTurnState:pStats(last, move, attacker, defender, onEnd)
+    if move.pStats then
+        if last == true then
+            if move.pStats.evasion then
+                last = 'evasion'
+            elseif move.pStats.accuracy then
+                last = 'accuracy'
+            elseif move.pStats.speed then
+                last = 'speed'
+            elseif move.pStats.defense then
+                last = 'defense'
+            elseif move.pStats.attack then
+                last = 'attack'
+            elseif move.pStats.position then
+                last = 'position'
             end
         end
-    end
 
-    if move.pStats.defense then
+        if move.pStats.attack then
+            local strStat = 'attack'
+            if math.abs(attacker.statStages.attack) == 6 then
+                if math.random(2) == 1 then
+                    -- push new message
+                    gStateStack:push(BattleMessageState(attacker.name .. '\'s ' .. strStat .. ' won\'t go any ' .. attacker.statStages.attack == 6 and 'higher!' or 'lower!',
+                        function()
+                            if last == strStat then
+                                onEnd()
+                            end
+                        end))
+                else
+                    -- push new message
+                    gStateStack:push(BattleMessageState('Nothing happened!',
+                        function()
+                            if last == strStat then
+                                onEnd()
+                            end
+                        end))
+                end
+            else
+                attacker.statStages.attack = attacker.statStages.attack + move.pStats.attack
 
+                local actualEffect
+
+                if math.abs(attacker.statStages.attack) > 6 then
+                    actualEffect = move.pStats.attack - (attacker.statStages.attack - 6 * math.abs(attacker.statStages.attack) / attacker.statStages.attack)
+                    attacker.statStages.attack = 6 * math.abs(attacker.statStages.attack) / attacker.statStages.attack
+                else
+                    actualEffect = move.pStats.attack
+                end
+
+                if actualEffect == 1 then
+                    -- push new message
+                    gStateStack:push(BattleMessageState(attacker.name .. '\'s ' .. strStat .. ' rose!',
+                        function()
+                            if last == strStat then
+                                onEnd()
+                            end
+                        end))
+                elseif actualEffect == 2 then
+                    -- push new message
+                    gStateStack:push(BattleMessageState(attacker.name .. '\'s ' .. strStat .. ' sharply rose!',
+                        function()
+                            if last == strStat then
+                                onEnd()
+                            end
+                        end))
+                elseif actualEffect >= 3 then
+                    -- push new message
+                    gStateStack:push(BattleMessageState(attacker.name .. '\'s ' .. strStat .. ' rose drastically!',
+                        function()
+                            if last == strStat then
+                                onEnd()
+                            end
+                        end))
+                elseif actualEffect == -1 then
+                    -- push new message
+                    gStateStack:push(BattleMessageState(attacker.name .. '\'s ' .. strStat .. ' fell!',
+                        function()
+                            if last == strStat then
+                                onEnd()
+                            end
+                        end))
+                elseif actualEffect == -2 then
+                    -- push new message
+                    gStateStack:push(BattleMessageState(attacker.name .. '\'s ' .. strStat .. ' harshly fell!',
+                        function()
+                            if last == strStat then
+                                onEnd()
+                            end
+                        end))
+                elseif actualEffect <= -3 then
+                    -- push new message
+                    gStateStack:push(BattleMessageState(attacker.name .. '\'s ' .. strStat .. ' severely fell!',
+                        function()
+                            if last == strStat then
+                                onEnd()
+                            end
+                        end))
+                end
+            end
+        end
+
+        if move.pStats.defense then
+
+        end
     end
 end
 
-function TakeTurnState:oStats(move, attacker, defender)
+function TakeTurnState:oStats(last, move, attacker, defender, onEnd)
 
 end
 
