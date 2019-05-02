@@ -18,7 +18,7 @@ function BattleState:init(player)
     self.opponent = Opponent {
         party = Party {
             pokemon = {
-                Pokemon(Pokemon.getRandomDef(), math.random(2, 6))
+                Pokemon(Pokemon.getRandomDef(), math.random(1, 1))
             }
         }
     }
@@ -80,6 +80,12 @@ function BattleState:init(player)
     self.playerPokemon.statStages.speed = 0
     self.playerPokemon.statStages.accuracy = 0
     self.playerPokemon.statStages.evasion = 0
+    self.playerPokemon.multipliers = {}
+    self.playerPokemon.multipliers.attack = 1
+    self.playerPokemon.multipliers.defense = 1
+    self.playerPokemon.multipliers.speed = 1
+    self.playerPokemon.multipliers.accuracy = 1
+    self.playerPokemon.multipliers.evasion = 1
 
     self.opponentPokemon.position = 2
     self.opponentPokemon.accuracy = 1
@@ -90,6 +96,12 @@ function BattleState:init(player)
     self.opponentPokemon.statStages.speed = 0
     self.opponentPokemon.statStages.accuracy = 0
     self.opponentPokemon.statStages.evasion = 0
+    self.opponentPokemon.multipliers = {}
+    self.opponentPokemon.multipliers.attack = 1
+    self.opponentPokemon.multipliers.defense = 1
+    self.opponentPokemon.multipliers.speed = 1
+    self.opponentPokemon.multipliers.accuracy = 1
+    self.opponentPokemon.multipliers.evasion = 1
 end
 
 function BattleState:enter(params)

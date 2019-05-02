@@ -25,7 +25,7 @@ function TakeTurnState:init(battleState, playerMove)
         self.firstBar = self.battleState.playerHealthBar
         self.secondBar = self.battleState.opponentHealthBar
         self.firstMove = playerMove
-        self.secondMove = MOVES[self.secondPokemon.type][math.random(3, 6)]
+        self.secondMove = self.secondPokemon.currentMoves[math.random(2)]
     else
         self.firstPokemon = self.opponentPokemon
         self.secondPokemon = self.playerPokemon
@@ -33,7 +33,7 @@ function TakeTurnState:init(battleState, playerMove)
         self.secondSprite = self.playerSprite
         self.firstBar = self.battleState.opponentHealthBar
         self.secondBar = self.battleState.playerHealthBar
-        self.firstMove = MOVES[self.secondPokemon.type][math.random(3, 6)]
+        self.firstMove = self.secondPokemon.currentMoves[math.random(2)]
         self.secondMove = playerMove
     end
 end
@@ -61,6 +61,7 @@ function TakeTurnState:attack(move, attacker, defender, attackerSprite, defender
         function() end, false))
 
     Timer.after(0.8, function()
+
         -- if move still has power points
         if attacker.pp[move.text] > 0 then
             -- lower move's power points by 1
@@ -87,16 +88,16 @@ function TakeTurnState:attack(move, attacker, defender, attackerSprite, defender
                         gStateStack:pop()
                         
                         if move.oStats then
-                            self:power(false, move, attacker, defender, attackerBar, defenderBar, attackerSprite, defenderSprite, onEnd)
-                            self:bStats(false, move, attacker, defender, onEnd)
-                            self:pStats(false, move, attacker, defender, onEnd)
-                            self:oStats(true, move, attacker, defender, onEnd)
+                            self:power(false, move, attacker, defender, attackerBar, defenderBar, attackerSprite, defenderSprite)
+                            self:bStats(false, move, attacker, defender)
+                            self:poStats(false, move.pStats, attacker, defender)
+                            self:poStats(true, move.oStats, defender, attacker)
                         elseif move.pStats then
-                            self:power(false, move, attacker, defender, attackerBar, defenderBar, attackerSprite, defenderSprite, onEnd)
-                            self:bStats(false, move, attacker, defender, onEnd)
-                            self:pStats(true, move, attacker, defender, onEnd)
+                            self:power(false, move, attacker, defender, attackerBar, defenderBar, attackerSprite, defenderSprite)
+                            self:bStats(false, move, attacker, defender)
+                            self:poStats(true, move.pStats, attacker, defender, onEnd)
                         elseif move.bStats then
-                            self:power(false, move, attacker, defender, attackerBar, defenderBar, attackerSprite, defenderSprite, onEnd)
+                            self:power(false, move, attacker, defender, attackerBar, defenderBar, attackerSprite, defenderSprite)
                             self:bStats(true, move, attacker, defender, onEnd)
                         else
                             self:power(true, move, attacker, defender, attackerBar, defenderBar, attackerSprite, defenderSprite, onEnd)
@@ -143,10 +144,10 @@ function TakeTurnState:power(last, move, attacker, defender, attackerBar, defend
         end)
         :limit(6)
         :finish(function()
-            local dmg = ( ((2 * attacker.level / 5) + 2) * move.power * attacker.attack / defender.defense ) / 50 + 2
+            local dmg = ( ((2 * attacker.level / 5) + 2) * move.power * (attacker.attack * attacker.multipliers.attack) / (defender.defense * defender.multipliers.defense) ) / 50 + 2
 
             -- multipliers
-            local multiplier = math.random(0.85, 1)
+            local multiplier = 1--math.random(0.85, 1)
             if math.random(16) == 1 then
                 multiplier = multiplier * 1.5
             end
@@ -180,116 +181,132 @@ function TakeTurnState:bStats(last, move, attacker, defender, onEnd)
 
 end
 
-function TakeTurnState:pStats(last, move, attacker, defender, onEnd)
-    if move.pStats then
+-- player/opponent stat changes are interchangeable
+function TakeTurnState:poStats(last, stats, affected, other, onEnd)
+    if stats then
         if last == true then
-            if move.pStats.evasion then
-                last = 'evasion'
-            elseif move.pStats.accuracy then
-                last = 'accuracy'
-            elseif move.pStats.speed then
-                last = 'speed'
-            elseif move.pStats.defense then
-                last = 'defense'
-            elseif move.pStats.attack then
-                last = 'attack'
-            elseif move.pStats.position then
+            if stats.position then
                 last = 'position'
+            elseif stats.evasion then
+                last = 'evasion'
+            elseif stats.accuracy then
+                last = 'accuracy'
+            elseif stats.speed then
+                last = 'speed'
+            elseif stats.defense then
+                last = 'defense'
+            elseif stats.attack then
+                last = 'attack'
             end
         end
 
-        if move.pStats.attack then
-            local strStat = 'attack'
-            if math.abs(attacker.statStages.attack) == 6 then
+        if stats.attack then
+            affected.statStages.attack, affected.multipliers.attack = self:statChange(last == 'attack', 'attack', stats.attack, affected.statStages.attack, affected.multipliers.attack, affected, onEnd)
+        end
+        if stats.defense then
+            affected.statStages.defense, affected.multipliers.defense = self:statChange(last == 'defense', 'defense', stats.defense, affected.statStages.defense, affected.multipliers.defense, affected, onEnd)
+        end
+        if stats.speed then
+            affected.statStages.speed, affected.multipliers.speed = self:statChange(last == 'speed', 'speed', stats.speed, affected.statStages.speed, affected.multipliers.speed, affected, onEnd)
+        end
+        if stats.accuracy then
+            affected.statStages.accuracy, affected.multipliers.accuracy = self:statChange(last == 'accuracy', 'accuracy', stats.accuracy, affected.statStages.accuracy, affected.multipliers.accuracy, affected, onEnd)
+        end
+        if stats.evasion then
+            affected.statStages.evasion, affected.multipliers.evasion = self:statChange(last == 'evasion', 'evasion', stats.evasion, affected.statStages.evasion, affected.multipliers.evasion, affected, onEnd)
+        end
+        if stats.position then
+            -- FIX POSITION PROBLEM, OPPONENT VS PLAYER + - CHANGES
+            local strStat = 'position'
+            if math.abs(affected.position) == 6 then
                 if math.random(2) == 1 then
-                    -- push new message
-                    gStateStack:push(BattleMessageState(attacker.name .. '\'s ' .. strStat .. ' won\'t go any ' .. attacker.statStages.attack == 6 and 'higher!' or 'lower!',
-                        function()
-                            if last == strStat then
-                                onEnd()
-                            end
-                        end))
+                    self:pushMoveMessage(affected.name .. 'can\'t move farther ' .. (affected.position == 6 and 'forward!' or 'back!'), last, onEnd)
                 else
-                    -- push new message
-                    gStateStack:push(BattleMessageState('Nothing happened!',
-                        function()
-                            if last == strStat then
-                                onEnd()
-                            end
-                        end))
+                    self:pushMoveMessage('Nothing happened!', last == 'position', onEnd)
                 end
+            elseif math.abs(affected.position - other.position) == 1 then
+                self:pushMoveMessage(affected.name .. ' and ' .. other.name .. ' are too close!')
             else
-                attacker.statStages.attack = attacker.statStages.attack + move.pStats.attack
-
                 local actualEffect
 
-                if math.abs(attacker.statStages.attack) > 6 then
-                    actualEffect = move.pStats.attack - (attacker.statStages.attack - 6 * math.abs(attacker.statStages.attack) / attacker.statStages.attack)
-                    attacker.statStages.attack = 6 * math.abs(attacker.statStages.attack) / attacker.statStages.attack
+                if math.abs(affected.position + effect) > 6 then
+                    actualEffect = 6 * math.abs(affected.position) / affected.position - affected.position
+                    affected.position = affected.position + actualEffect
+                elseif affected.position < other.position and affected.position + effect >= other.position then
+                    actualEffect = other.position - affected.position - 1
+                    affected.position = affected.position + actualEffect
+                elseif affected.position > other.position and affected.position + effect <= other.position then
+                    actualEffect = other.position - affected.position - 1
+                    affected.position = affected.position + actualEffect
                 else
-                    actualEffect = move.pStats.attack
+                    actualEffect = effect
+                    affected.position = affected.position + actualEffect
                 end
 
                 if actualEffect == 1 then
-                    -- push new message
-                    gStateStack:push(BattleMessageState(attacker.name .. '\'s ' .. strStat .. ' rose!',
-                        function()
-                            if last == strStat then
-                                onEnd()
-                            end
-                        end))
+                    self:pushMoveMessage(affected.name .. 'stepped forward!', last == 'position', onEnd)
                 elseif actualEffect == 2 then
-                    -- push new message
-                    gStateStack:push(BattleMessageState(attacker.name .. '\'s ' .. strStat .. ' sharply rose!',
-                        function()
-                            if last == strStat then
-                                onEnd()
-                            end
-                        end))
+                    self:pushMoveMessage(affected.name .. 'took a big step forward!', last == 'position', onEnd)
                 elseif actualEffect >= 3 then
-                    -- push new message
-                    gStateStack:push(BattleMessageState(attacker.name .. '\'s ' .. strStat .. ' rose drastically!',
-                        function()
-                            if last == strStat then
-                                onEnd()
-                            end
-                        end))
+                    self:pushMoveMessage(affected.name .. 'rushed forward!', last == 'position', onEnd)
                 elseif actualEffect == -1 then
-                    -- push new message
-                    gStateStack:push(BattleMessageState(attacker.name .. '\'s ' .. strStat .. ' fell!',
-                        function()
-                            if last == strStat then
-                                onEnd()
-                            end
-                        end))
+                    self:pushMoveMessage(affected.name .. 'stepped back!', last == 'position', onEnd)
                 elseif actualEffect == -2 then
-                    -- push new message
-                    gStateStack:push(BattleMessageState(attacker.name .. '\'s ' .. strStat .. ' harshly fell!',
-                        function()
-                            if last == strStat then
-                                onEnd()
-                            end
-                        end))
+                    self:pushMoveMessage(affected.name .. 'took a big step back!', last == 'position', onEnd)
                 elseif actualEffect <= -3 then
-                    -- push new message
-                    gStateStack:push(BattleMessageState(attacker.name .. '\'s ' .. strStat .. ' severely fell!',
-                        function()
-                            if last == strStat then
-                                onEnd()
-                            end
-                        end))
+                    self:pushMoveMessage(affected.name .. 'leaped back!', last == 'position', onEnd)
                 end
             end
-        end
-
-        if move.pStats.defense then
-
         end
     end
 end
 
-function TakeTurnState:oStats(last, move, attacker, defender, onEnd)
+function TakeTurnState:statChange(last, strStat, effect, statStage, multiplier, affected, onEnd)
+    if math.abs(statStage) == 6 then
+        if math.random(2) == 1 then
+            self:pushMoveMessage(affected.name .. '\'s ' .. strStat .. ' won\'t go any ' .. (statStage == 6 and 'higher!' or 'lower!'), last, onEnd)
+        else
+            self:pushMoveMessage('Nothing happened!', last, onEnd)
+        end
+    else
+        local actualEffect
 
+        if math.abs(statStage + effect) > 6 then
+            actualEffect = 6 * math.abs(statStage) / statStage - statStage
+            statStage = statStage + actualEffect
+        else
+            actualEffect = effect
+            statStage = statStage + actualEffect
+        end
+
+        -- update multiplier
+        multiplier = math.max(2, 2 + statStage) / math.max(2, 2 - statStage)
+
+        if actualEffect == 1 then
+            self:pushMoveMessage(affected.name .. '\'s ' .. strStat .. ' rose!', last, onEnd)
+        elseif actualEffect == 2 then
+            self:pushMoveMessage(affected.name .. '\'s ' .. strStat .. ' sharply rose!', last, onEnd)
+        elseif actualEffect >= 3 then
+            self:pushMoveMessage(affected.name .. '\'s ' .. strStat .. ' rose drastically!', last, onEnd)
+        elseif actualEffect == -1 then
+            self:pushMoveMessage(affected.name .. '\'s ' .. strStat .. ' fell!', last, onEnd)
+        elseif actualEffect == -2 then
+            self:pushMoveMessage(affected.name .. '\'s ' .. strStat .. ' harshly fell!', last, onEnd)
+        elseif actualEffect <= -3 then
+            self:pushMoveMessage(affected.name .. '\'s ' .. strStat .. ' severely fell!', last, onEnd)
+        end
+    end
+
+    return statStage, multiplier
+end
+
+function TakeTurnState:pushMoveMessage(message, last, onEnd)
+    gStateStack:push(BattleMessageState(message,
+        function()
+            if last then
+                onEnd()
+            end
+        end))
 end
 
 function TakeTurnState:checkDeaths()

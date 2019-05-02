@@ -71,8 +71,8 @@ MOVES = {
             accuracy = 100,
             contact = false,
             range = MAX_RANGE,
-            pStats = {
-                position = 5,
+            oStats = {
+                position = -5,
             },
         },
         {
