@@ -229,20 +229,36 @@ function TakeTurnState:poStats(last, stats, affected, other, onEnd)
             else
                 local actualEffect
 
-                if math.abs(affected.position + effect) > 6 then
-                    actualEffect = 6 * math.abs(affected.position) / affected.position - affected.position
-                    affected.position = affected.position + actualEffect
-                elseif affected.position < other.position and affected.position + effect >= other.position then
-                    actualEffect = other.position - affected.position - 1
-                    affected.position = affected.position + actualEffect
-                elseif affected.position > other.position and affected.position + effect <= other.position then
-                    actualEffect = other.position - affected.position - 1
-                    affected.position = affected.position + actualEffect
+                -- user is player
+                if affected.position < other.position then
+                    -- collides with other
+                    if affected.position + stats.position >= other.position then
+                        actualEffect = other.position - affected.position - 1
+                        affected.position = affected.position + actualEffect
+                    -- exceeds limit
+                    elseif affected.position + stats.position < -6 then
+                        actualEffect = -6 - affected.position
+                        affected.position = affected.position + actualEffect
+                    -- all good
+                    else
+                        actualEffect = stats.position
+                        affected.position = affected.position + actualEffect
+                    end    
+                -- user is opponent, user position < other position
                 else
-                    actualEffect = effect
-                    affected.position = affected.position + actualEffect
+                    if affected.position - stats.position <= other.position then
+                        actualEffect = affected.position - other.position - 1
+                        affected.position = affected.position - actualEffect
+                    elseif affected.position - stats.position > 6 then
+                        actualEffect = affected.position - 6
+                        affected.position = affected.position - actualEffect
+                    else
+                        actualEffect = stats.position
+                        affected.position = affected.position - actualEffect
+                    end
                 end
 
+                -- fix moving self or other
                 if actualEffect == 1 then
                     self:pushMoveMessage(affected.name .. 'stepped forward!', last == 'position', onEnd)
                 elseif actualEffect == 2 then
