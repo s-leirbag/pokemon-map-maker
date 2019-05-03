@@ -14,10 +14,19 @@ function Pokemon:init(def, level)
     self.currentMoves = {}
     self.pp = {}
 
-    for i = 3, 6 do
+    --[[for i = 3, 6 do
         table.insert(self.currentMoves, MOVES[self.type][i])
         self.pp[MOVES[self.type][i].text] = MOVES[self.type][i].basePP
-    end
+    end]]
+
+    table.insert(self.currentMoves, MOVES[self.type][3])
+    self.pp[MOVES[self.type][3].text] = MOVES[self.type][3].basePP
+    table.insert(self.currentMoves, MOVES[self.type][4])
+    self.pp[MOVES[self.type][4].text] = MOVES[self.type][4].basePP
+    table.insert(self.currentMoves, MOVES[self.type][5])
+    self.pp[MOVES[self.type][5].text] = MOVES[self.type][5].basePP
+    table.insert(self.currentMoves, MOVES[self.type][7])
+    self.pp[MOVES[self.type][7].text] = MOVES[self.type][7].basePP
 
     self.battleSpriteFront = def.battleSpriteFront
     self.battleSpriteBack = def.battleSpriteBack

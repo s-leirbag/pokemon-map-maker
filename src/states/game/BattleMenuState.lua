@@ -18,12 +18,14 @@ function BattleMenuState:init(battleState)
         height = 64,
         rows = 2,
         columns = 2,
+        currentSelection = self.battleState.currentBMSelection,
         items = {
             {
                 text = 'Fight',
-                onSelect = function()
+                onSelect = function(currentSelection)
                     -- pop battle menu
                     gStateStack:pop()
+                    self.battleState.currentBMSelection = currentSelection
                     gStateStack:push(FightMenuState(self.battleState))
                 end
             },

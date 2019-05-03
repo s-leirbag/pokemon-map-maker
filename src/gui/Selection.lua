@@ -28,11 +28,18 @@ function Selection:init(def)
     self.width = def.width
     self.font = def.font or gFonts['medium']
 
-    self.row = 1
-    self.column = 1
     self.numRows = def.rows or #self.items
     self.numColumns = def.columns or 1
-    self.currentSelection = 1
+
+    if def.currentSelection then     
+        self.currentSelection = def.currentSelection
+        self.row = math.ceil(self.currentSelection / self.numColumns)
+        self.column = self.currentSelection - (self.row - 1) * self.numColumns
+    else
+        self.currentSelection = 1
+        self.row = 1
+        self.column = 1
+    end
 
     self.gapHeight = self.height / self.numRows
     self.gapWidth = (self.width - 12) / self.numColumns
@@ -40,7 +47,7 @@ end
 
 function Selection:update(dt)
     if love.keyboard.wasPressed('return') or love.keyboard.wasPressed('enter') or love.keyboard.wasPressed('space') then
-        self.items[self.currentSelection].onSelect()
+        self.items[self.currentSelection].onSelect(self.currentSelection)
         
         if self.cursor then
             gSounds['blip']:stop()

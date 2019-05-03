@@ -177,6 +177,9 @@ function BattleState:triggerStartingDialogue()
     
         -- push a battle menu onto the stack that has access to the battle state
         function()
+            -- battle menu & fight menu selection is saved
+            self.currentBMSelection = 1
+            self.currentFMSelection = 1
             gStateStack:push(BattleMenuState(self))
         end))
     end))

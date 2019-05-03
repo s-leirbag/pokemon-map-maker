@@ -13,9 +13,10 @@ function FightMenuState:init(battleState)
     self.playerPokemon = self.battleState.player.party.pokemon[1]
 
     for k, move in pairs(self.playerPokemon.currentMoves) do
-        move.onSelect = function()
+        move.onSelect = function(currentSelection)
             -- pop fight menu
             gStateStack:pop()
+            self.battleState.currentFMSelection = currentSelection
             gStateStack:push(TakeTurnState(self.battleState, move))
         end
     end
@@ -27,7 +28,8 @@ function FightMenuState:init(battleState)
         height = 64,
         rows = 2,
         columns = 2,
-        items = self.playerPokemon.currentMoves
+        items = self.playerPokemon.currentMoves,
+        currentSelection = self.battleState.currentFMSelection,
     }
 end
 

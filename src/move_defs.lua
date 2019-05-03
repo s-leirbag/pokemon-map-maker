@@ -72,7 +72,7 @@ MOVES = {
             contact = false,
             range = MAX_RANGE,
             oStats = {
-                position = -5,
+                position = 5,
             },
         },
         {
@@ -84,6 +84,20 @@ MOVES = {
             range = MAX_RANGE,
             pStats = {
                 position = -5,
+            },
+        },
+        {
+            text = 'Disengage',
+            type = 'normal',
+            basePP = 25,
+            accuracy = 100,
+            contact = false,
+            range = MAX_RANGE,
+            pStats = {
+                position = -2,
+            },
+            oStats = {
+                position = -2,
             },
         },
     },
