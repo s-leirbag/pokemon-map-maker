@@ -88,17 +88,23 @@ function TakeTurnState:attack(move, attacker, defender, attackerSprite, defender
                         gStateStack:pop()
                         
                         if move.oStats then
-                            self:power(false, move, attacker, defender, attackerBar, defenderBar, attackerSprite, defenderSprite)
-                            self:bStats(false, move, attacker, defender)
-                            self:poStats(false, move.pStats, attacker, defender, 'user', onEnd)
-                            self:poStats(true, move.oStats, defender, attacker, 'other', onEnd)
+                            self:power(false, move, attacker, defender, attackerBar, defenderBar, attackerSprite, defenderSprite, function()
+                                self:bStats(false, move, attacker, defender, function()
+                                    self:poStats(false, move.pStats, attacker, defender, 'user', function()
+                                        self:poStats(true, move.oStats, defender, attacker, 'other', onEnd)
+                                    end)
+                                end)
+                            end)
                         elseif move.pStats then
-                            self:power(false, move, attacker, defender, attackerBar, defenderBar, attackerSprite, defenderSprite)
-                            self:bStats(false, move, attacker, defender)
-                            self:poStats(true, move.pStats, attacker, defender, 'user', onEnd)
+                            self:power(false, move, attacker, defender, attackerBar, defenderBar, attackerSprite, defenderSprite, function()
+                                self:bStats(false, move, attacker, defender, function()
+                                    self:poStats(true, move.pStats, attacker, defender, 'user', onEnd)
+                                end)
+                            end)
                         elseif move.bStats then
-                            self:power(false, move, attacker, defender, attackerBar, defenderBar, attackerSprite, defenderSprite)
-                            self:bStats(true, move, attacker, defender, onEnd)
+                            self:power(false, move, attacker, defender, attackerBar, defenderBar, attackerSprite, defenderSprite, function()
+                                self:bStats(true, move, attacker, defender, onEnd)
+                            end)
                         else
                             self:power(true, move, attacker, defender, attackerBar, defenderBar, attackerSprite, defenderSprite, onEnd)
                         end
@@ -169,36 +175,36 @@ function TakeTurnState:power(last, move, attacker, defender, attackerBar, defend
                     return
                 end
 
-                if last == true then
-                    onEnd()
-                end
+                onEnd()
             end)
         end)
+    else
+        onEnd()
     end
 end
 
 function TakeTurnState:bStats(last, move, attacker, defender, onEnd)
-
+    onEnd()
 end
 
 -- player/opponent stat changes are interchangeable
 -- u_o other means who is affected, the move's user or the other
 function TakeTurnState:poStats(last, stats, affected, other, u_o, onEnd)
     if stats then
-        if last == true then
-            if stats.position then
-                last = 'position'
-            elseif stats.evasion then
-                last = 'evasion'
-            elseif stats.accuracy then
-                last = 'accuracy'
-            elseif stats.speed then
-                last = 'speed'
-            elseif stats.defense then
-                last = 'defense'
-            elseif stats.attack then
-                last = 'attack'
-            end
+        -- what stat is affected last
+        local last
+        if stats.position then
+            last = 'position'
+        elseif stats.evasion then
+            last = 'evasion'
+        elseif stats.accuracy then
+            last = 'accuracy'
+        elseif stats.speed then
+            last = 'speed'
+        elseif stats.defense then
+            last = 'defense'
+        elseif stats.attack then
+            last = 'attack'
         end
 
         if stats.attack then

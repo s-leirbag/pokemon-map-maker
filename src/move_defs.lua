@@ -62,7 +62,7 @@ MOVES = {
             range = MAX_RANGE,
             pStats = {
                 attack = 1,
-            },
+            }
         },
         {
             text = 'Reel In',
