@@ -39,11 +39,11 @@ function TakeTurnState:init(battleState, playerMove)
 end
 
 function TakeTurnState:enter(params)
-    self:attack(self.firstMove, self.firstPokemon, self.secondPokemon, self.firstSprite, self.secondSprite, self.firstBar, self.secondBar,
+    self:makeMove(self.firstMove, self.firstPokemon, self.secondPokemon, self.firstSprite, self.secondSprite, self.firstBar, self.secondBar,
 
     function()
         Timer.after(0.5, function()
-            self:attack(self.secondMove, self.secondPokemon, self.firstPokemon, self.secondSprite, self.firstSprite, self.secondBar, self.firstBar,
+            self:makeMove(self.secondMove, self.secondPokemon, self.firstPokemon, self.secondSprite, self.firstSprite, self.secondBar, self.firstBar,
             
             function()
                 -- remove the last attack state from the stack
@@ -54,7 +54,7 @@ function TakeTurnState:enter(params)
     end)
 end
 
-function TakeTurnState:attack(move, attacker, defender, attackerSprite, defenderSprite, attackerkBar, defenderBar, onEnd)
+function TakeTurnState:makeMove(move, attacker, defender, attackerSprite, defenderSprite, attackerkBar, defenderBar, onEnd)
     -- this message is not allowed to take input at first, so it stays on the stack
     -- during the animation
     gStateStack:push(BattleMessageState(attacker.name .. ' used ' .. move.text .. '!',
@@ -88,25 +88,25 @@ function TakeTurnState:attack(move, attacker, defender, attackerSprite, defender
                         gStateStack:pop()
                         
                         if move.oStats then
-                            self:power(false, move, attacker, defender, attackerBar, defenderBar, attackerSprite, defenderSprite, function()
-                                self:bStats(false, move, attacker, defender, function()
-                                    self:poStats(false, move.pStats, attacker, defender, 'user', function()
-                                        self:poStats(true, move.oStats, defender, attacker, 'other', onEnd)
+                            self:power(move, attacker, defender, attackerBar, defenderBar, attackerSprite, defenderSprite, function()
+                                self:bStats(move, attacker, defender, function()
+                                    self:poStats(move.pStats, attacker, defender, 'user', function()
+                                        self:poStats(move.oStats, defender, attacker, 'other', onEnd)
                                     end)
                                 end)
                             end)
                         elseif move.pStats then
-                            self:power(false, move, attacker, defender, attackerBar, defenderBar, attackerSprite, defenderSprite, function()
-                                self:bStats(false, move, attacker, defender, function()
-                                    self:poStats(true, move.pStats, attacker, defender, 'user', onEnd)
+                            self:power(move, attacker, defender, attackerBar, defenderBar, attackerSprite, defenderSprite, function()
+                                self:bStats(move, attacker, defender, function()
+                                    self:poStats(move.pStats, attacker, defender, 'user', onEnd)
                                 end)
                             end)
                         elseif move.bStats then
-                            self:power(false, move, attacker, defender, attackerBar, defenderBar, attackerSprite, defenderSprite, function()
-                                self:bStats(true, move, attacker, defender, onEnd)
+                            self:power(move, attacker, defender, attackerBar, defenderBar, attackerSprite, defenderSprite, function()
+                                self:bStats(move, attacker, defender, onEnd)
                             end)
                         else
-                            self:power(true, move, attacker, defender, attackerBar, defenderBar, attackerSprite, defenderSprite, onEnd)
+                            self:power(move, attacker, defender, attackerBar, defenderBar, attackerSprite, defenderSprite, onEnd)
                         end
                     end)
                 else
@@ -138,7 +138,7 @@ function TakeTurnState:attack(move, attacker, defender, attackerSprite, defender
     end)
 end
 
-function TakeTurnState:power(last, move, attacker, defender, attackerBar, defenderBar, attackerSprite, defenderSprite, onEnd)
+function TakeTurnState:power(move, attacker, defender, attackerBar, defenderBar, attackerSprite, defenderSprite, onEnd)
     if move.power then
         -- after finishing the blink, play a hit sound and flash the opacity of
         -- the defender a few times
@@ -183,129 +183,161 @@ function TakeTurnState:power(last, move, attacker, defender, attackerBar, defend
     end
 end
 
-function TakeTurnState:bStats(last, move, attacker, defender, onEnd)
+function TakeTurnState:bStats(move, attacker, defender, onEnd)
     onEnd()
 end
 
 -- player/opponent stat changes are interchangeable
 -- u_o other means who is affected, the move's user or the other
-function TakeTurnState:poStats(last, stats, affected, other, u_o, onEnd)
+function TakeTurnState:poStats(stats, affected, other, u_o, onEnd)
     if stats then
-        -- what stat is affected last
-        local last
-        if stats.position then
-            last = 'position'
-        elseif stats.evasion then
-            last = 'evasion'
-        elseif stats.accuracy then
-            last = 'accuracy'
-        elseif stats.speed then
-            last = 'speed'
-        elseif stats.defense then
-            last = 'defense'
-        elseif stats.attack then
-            last = 'attack'
-        end
+        ------------ FIX INFO MUST CHANGE ACTUAL STATS
+        local info = {
+            stats = stats,
+            affected = affected,
+            other = other,
+            u_o = u_o,
+            onEnd = onEnd
+        }
 
-        if stats.attack then
-            affected.statStages.attack, affected.multipliers.attack = self:statChange(last == 'attack', 'attack', stats.attack, affected.statStages.attack, affected.multipliers.attack, affected, onEnd)
-        end
-        if stats.defense then
-            affected.statStages.defense, affected.multipliers.defense = self:statChange(last == 'defense', 'defense', stats.defense, affected.statStages.defense, affected.multipliers.defense, affected, onEnd)
-        end
-        if stats.speed then
-            affected.statStages.speed, affected.multipliers.speed = self:statChange(last == 'speed', 'speed', stats.speed, affected.statStages.speed, affected.multipliers.speed, affected, onEnd)
-        end
-        if stats.accuracy then
-            affected.statStages.accuracy, affected.multipliers.accuracy = self:statChange(last == 'accuracy', 'accuracy', stats.accuracy, affected.statStages.accuracy, affected.multipliers.accuracy, affected, onEnd)
-        end
-        if stats.evasion then
-            affected.statStages.evasion, affected.multipliers.evasion = self:statChange(last == 'evasion', 'evasion', stats.evasion, affected.statStages.evasion, affected.multipliers.evasion, affected, onEnd)
-        end
-        if stats.position then
-            local strStat = 'position'
-            -- reached limit
-            if math.abs(affected.position) == 6 then
-                if math.random(2) == 1 then
-                    self:pushMoveMessage(affected.name .. ' can\'t move farther ' .. (affected.position == 6 and 'forward!' or 'back!'), last, onEnd)
+        local position = function()
+            local after = onEnd
+            if stats.position then
+                local strStat = 'position'
+                -- reached limit
+                if math.abs(affected.position) == 6 then
+                    if math.random(2) == 1 then
+                        self:pushMoveMessage(affected.name .. ' can\'t move farther ' .. (affected.position == 6 and 'forward!' or 'back!'), after)
+                    else
+                        self:pushMoveMessage('Nothing happened!', after)
+                    end
                 else
-                    self:pushMoveMessage('Nothing happened!', last == 'position', onEnd)
+                    local actualEffect
+
+                    -- user is player
+                    if affected.position < other.position then
+                        -- collides with other
+                        if affected.position + stats.position >= other.position then
+                            actualEffect = other.position - affected.position - 1
+                            affected.position = affected.position + actualEffect
+                        -- exceeds limit
+                        elseif affected.position + stats.position < -6 then
+                            actualEffect = -6 - affected.position
+                            affected.position = affected.position + actualEffect
+                        -- all good
+                        else
+                            actualEffect = stats.position
+                            affected.position = affected.position + actualEffect
+                        end    
+                    -- user is opponent, user position < other position
+                    else
+                        if affected.position - stats.position <= other.position then
+                            actualEffect = affected.position - other.position - 1
+                            affected.position = affected.position - actualEffect
+                        elseif affected.position - stats.position > 6 then
+                            actualEffect = affected.position - 6
+                            affected.position = affected.position - actualEffect
+                        else
+                            actualEffect = stats.position
+                            affected.position = affected.position - actualEffect
+                        end
+                    end
+
+                    -- if they are right next to each other and trying to move past the other
+                    if actualEffect == 0 then
+                        self:pushMoveMessage(affected.name .. ' and ' .. other.name .. ' are too close!', after)
+                    elseif u_o == 'other' then
+                        if actualEffect == 1 then
+                            self:pushMoveMessage(affected.name .. ' was pulled in!', after)
+                        elseif actualEffect == 2 then
+                            self:pushMoveMessage(affected.name .. ' was sharply pulled closer!', after)
+                        elseif actualEffect >= 3 then
+                            self:pushMoveMessage(affected.name .. ' was drastically pulled in!', after)
+                        elseif actualEffect == -1 then
+                            self:pushMoveMessage(affected.name .. ' was pushed back!', after)
+                        elseif actualEffect == -2 then
+                            self:pushMoveMessage(affected.name .. ' was sharply pushed back!', after)
+                        elseif actualEffect <= -3 then
+                            self:pushMoveMessage(affected.name .. ' was drastically thrusted back!', after)
+                        end
+                    else
+                        if actualEffect == 1 then
+                            self:pushMoveMessage(affected.name .. ' stepped forward!', after)
+                        elseif actualEffect == 2 then
+                            self:pushMoveMessage(affected.name .. ' took a big step forward!', after)
+                        elseif actualEffect >= 3 then
+                            self:pushMoveMessage(affected.name .. ' rushed forward!', after)
+                        elseif actualEffect == -1 then
+                            self:pushMoveMessage(affected.name .. ' stepped back!', after)
+                        elseif actualEffect == -2 then
+                            self:pushMoveMessage(affected.name .. ' took a big step back!', after)
+                        elseif actualEffect <= -3 then
+                            self:pushMoveMessage(affected.name .. ' leaped back!', after)
+                        end
+                    end
                 end
             else
-                local actualEffect
-
-                -- user is player
-                if affected.position < other.position then
-                    -- collides with other
-                    if affected.position + stats.position >= other.position then
-                        actualEffect = other.position - affected.position - 1
-                        affected.position = affected.position + actualEffect
-                    -- exceeds limit
-                    elseif affected.position + stats.position < -6 then
-                        actualEffect = -6 - affected.position
-                        affected.position = affected.position + actualEffect
-                    -- all good
-                    else
-                        actualEffect = stats.position
-                        affected.position = affected.position + actualEffect
-                    end    
-                -- user is opponent, user position < other position
-                else
-                    if affected.position - stats.position <= other.position then
-                        actualEffect = affected.position - other.position - 1
-                        affected.position = affected.position - actualEffect
-                    elseif affected.position - stats.position > 6 then
-                        actualEffect = affected.position - 6
-                        affected.position = affected.position - actualEffect
-                    else
-                        actualEffect = stats.position
-                        affected.position = affected.position - actualEffect
-                    end
-                end
-
-                -- if they are right next to each other and trying to move past the other
-                if actualEffect == 0 then
-                    self:pushMoveMessage(affected.name .. ' and ' .. other.name .. ' are too close!', last == 'position', onEnd)
-                elseif u_o == 'other' then
-                    if actualEffect == 1 then
-                        self:pushMoveMessage(affected.name .. ' was pulled in!', last == 'position', onEnd)
-                    elseif actualEffect == 2 then
-                        self:pushMoveMessage(affected.name .. ' was sharply pulled closer!', last == 'position', onEnd)
-                    elseif actualEffect >= 3 then
-                        self:pushMoveMessage(affected.name .. ' was drastically pulled in!', last == 'position', onEnd)
-                    elseif actualEffect == -1 then
-                        self:pushMoveMessage(affected.name .. ' was pushed back!', last == 'position', onEnd)
-                    elseif actualEffect == -2 then
-                        self:pushMoveMessage(affected.name .. ' was sharply pushed back!', last == 'position', onEnd)
-                    elseif actualEffect <= -3 then
-                        self:pushMoveMessage(affected.name .. ' was drastically thrusted back!', last == 'position', onEnd)
-                    end
-                else
-                    if actualEffect == 1 then
-                        self:pushMoveMessage(affected.name .. ' stepped forward!', last == 'position', onEnd)
-                    elseif actualEffect == 2 then
-                        self:pushMoveMessage(affected.name .. ' took a big step forward!', last == 'position', onEnd)
-                    elseif actualEffect >= 3 then
-                        self:pushMoveMessage(affected.name .. ' rushed forward!', last == 'position', onEnd)
-                    elseif actualEffect == -1 then
-                        self:pushMoveMessage(affected.name .. ' stepped back!', last == 'position', onEnd)
-                    elseif actualEffect == -2 then
-                        self:pushMoveMessage(affected.name .. ' took a big step back!', last == 'position', onEnd)
-                    elseif actualEffect <= -3 then
-                        self:pushMoveMessage(affected.name .. ' leaped back!', last == 'position', onEnd)
-                    end
-                end
+                after()
             end
         end
+
+        local evasion = function()
+            local after = position
+            if stats.evasion then
+                affected.statStages.evasion, affected.multipliers.evasion = self:statChange('evasion', stats.evasion, affected.statStages.evasion, affected.multipliers.evasion, affected, after)
+            else
+                after()
+            end
+        end
+
+        local accuracy = function()
+            local after = evasion
+            if stats.accuracy then
+                affected.statStages.accuracy, affected.multipliers.accuracy = self:statChange('accuracy', stats.accuracy, affected.statStages.accuracy, affected.multipliers.accuracy, affected, after)
+            else
+                after()
+            end
+        end
+
+        local speed = function()
+            local after = accuracy
+            if stats.speed then
+                affected.statStages.speed, affected.multipliers.speed = self:statChange('speed', stats.speed, affected.statStages.speed, affected.multipliers.speed, affected, after)
+            else
+                after()
+            end
+        end
+
+        local defense = function()
+            local after = speed
+            if stats.defense then
+                affected.statStages.defense, affected.multipliers.defense = self:statChange('defense', stats.defense, affected.statStages.defense, affected.multipliers.defense, affected, after)
+            else
+                after()
+            end
+        end
+
+        local attack = function()
+            local after = defense
+            if stats.attack then
+                affected.statStages.attack, affected.multipliers.attack = self:statChange('attack', stats.attack, affected.statStages.attack, affected.multipliers.attack, affected, after)
+            else
+                after()
+            end
+        end
+
+        attack()
+    else
+        onEnd()
     end
 end
 
-function TakeTurnState:statChange(last, strStat, effect, statStage, multiplier, affected, onEnd)
+function TakeTurnState:statChange(strStat, effect, statStage, multiplier, affected, onEnd)
     if math.abs(statStage) == 6 then
         if math.random(2) == 1 then
-            self:pushMoveMessage(affected.name .. '\'s ' .. strStat .. ' won\'t go any ' .. (statStage == 6 and 'higher!' or 'lower!'), last, onEnd)
+            self:pushMoveMessage(affected.name .. '\'s ' .. strStat .. ' won\'t go any ' .. (statStage == 6 and 'higher!' or 'lower!'), onEnd)
         else
-            self:pushMoveMessage('Nothing happened!', last, onEnd)
+            self:pushMoveMessage('Nothing happened!', onEnd)
         end
     else
         local actualEffect
@@ -322,30 +354,26 @@ function TakeTurnState:statChange(last, strStat, effect, statStage, multiplier, 
         multiplier = math.max(2, 2 + statStage) / math.max(2, 2 - statStage)
 
         if actualEffect == 1 then
-            self:pushMoveMessage(affected.name .. '\'s ' .. strStat .. ' rose!', last, onEnd)
+            self:pushMoveMessage(affected.name .. '\'s ' .. strStat .. ' rose!', onEnd)
         elseif actualEffect == 2 then
-            self:pushMoveMessage(affected.name .. '\'s ' .. strStat .. ' sharply rose!', last, onEnd)
+            self:pushMoveMessage(affected.name .. '\'s ' .. strStat .. ' sharply rose!', onEnd)
         elseif actualEffect >= 3 then
-            self:pushMoveMessage(affected.name .. '\'s ' .. strStat .. ' rose drastically!', last, onEnd)
+            self:pushMoveMessage(affected.name .. '\'s ' .. strStat .. ' rose drastically!', onEnd)
         elseif actualEffect == -1 then
-            self:pushMoveMessage(affected.name .. '\'s ' .. strStat .. ' fell!', last, onEnd)
+            self:pushMoveMessage(affected.name .. '\'s ' .. strStat .. ' fell!', onEnd)
         elseif actualEffect == -2 then
-            self:pushMoveMessage(affected.name .. '\'s ' .. strStat .. ' harshly fell!', last, onEnd)
+            self:pushMoveMessage(affected.name .. '\'s ' .. strStat .. ' harshly fell!', onEnd)
         elseif actualEffect <= -3 then
-            self:pushMoveMessage(affected.name .. '\'s ' .. strStat .. ' severely fell!', last, onEnd)
+            self:pushMoveMessage(affected.name .. '\'s ' .. strStat .. ' severely fell!', onEnd)
         end
     end
 
     return statStage, multiplier
 end
 
-function TakeTurnState:pushMoveMessage(message, last, onEnd)
+function TakeTurnState:pushMoveMessage(message, onEnd)
     gStateStack:push(BattleMessageState(message,
-        function()
-            if last then
-                onEnd()
-            end
-        end))
+        onEnd))
 end
 
 function TakeTurnState:checkDeaths()
