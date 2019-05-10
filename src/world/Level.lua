@@ -23,8 +23,10 @@ function Level:init(width, height)
     self.currentLayer = self.baseLayer
 
     self.player = Player {
+        level = self,
         type = 'player',
-        name = 'boy',
+        name = 'Juan',
+        gender = 'boy',
         animations = ENTITY_DEFS['player']['boy'].animations,
         mapX = 1,
         mapY = 10,
@@ -45,6 +47,8 @@ function Level:init(width, height)
 
     self.mouseGridX = math.floor(gMouse.x / TILE_SIZE) + 1
     self.mouseGridY = math.floor(gMouse.y / TILE_SIZE) + 1
+
+    self.currentFMSelection = 1
 end
 
 function Level:createMaps()
@@ -75,6 +79,11 @@ function Level:update(dt)
 	camY = math.floor(self.player.y + self.player.height / 2) - VIRTUAL_HEIGHT / 2
 
     self.player:update(dt)
+
+    if love.keyboard.isDown('enter') or love.keyboard.isDown('return') then
+        gStateStack:push(FieldMenuState(self.player))
+    end
+
     self:changeMap()
 end
 

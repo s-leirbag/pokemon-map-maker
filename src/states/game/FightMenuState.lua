@@ -16,8 +16,8 @@ function FightMenuState:init(battleState)
         move.onSelect = function(currentSelection)
             -- pop fight menu
             gStateStack:pop()
-            self.battleState.currentFMSelection = currentSelection
             gStateStack:push(TakeTurnState(self.battleState, move))
+            self.battleState.currentFMSelection = currentSelection
         end
     end
     
