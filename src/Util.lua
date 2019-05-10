@@ -86,3 +86,11 @@ function GeneratePlayerQuads()
     
     return quads
 end
+
+function GenerateBagQuads()
+    local quads = {
+        ['background'] = GenerateQuads(gTextures['bag-background'], 256, 192),
+        ['boy'] = GenerateQuads(gTextures['bag-boy'], 64, 64),
+        ['girl'] = GenerateQuads(gTextures['bag-girl'], 64, 64),
+    }
+end

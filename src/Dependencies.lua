@@ -45,6 +45,8 @@ require 'src/states/game/PlayState'
 require 'src/states/game/StartState'
 require 'src/states/game/TakeTurnState'
 require 'src/states/game/LevelUpState'
+require 'src/states/game/FieldMenuState'
+require 'src/states/game/BagState'
 
 require 'src/world/Level'
 require 'src/world/tile_defs'
@@ -63,6 +65,10 @@ gTextures = {
     ['girl-surf'] = love.graphics.newImage('graphics/characters/player/girl/girl_surf.png'),
     ['girl-fish'] = love.graphics.newImage('graphics/characters/player/girl/girl_fish.png'),
 
+    ['bag-background'] = love.graphics.newImage('graphics/bag/bg'),
+    ['bag-boy'] = love.graphics.newImage('graphics/bag/bag'),
+    ['bag-girl'] = love.graphics.newImage('graphics/bag/bag_f'),
+
     ['zigzagoon-back'] = love.graphics.newImage('graphics/pokemon/battle/aardart-back.png'),
     ['zigzagoon-front'] = love.graphics.newImage('graphics/pokemon/battle/aardart-front.png'),
     ['agnite-back'] = love.graphics.newImage('graphics/pokemon/battle/agnite-back.png'),
@@ -77,7 +83,8 @@ gTextures = {
 
 gFrames = {
 	['outside'] = GenerateOutsideQuads(),
-    ['player'] = GeneratePlayerQuads()
+    ['player'] = GeneratePlayerQuads(),
+    ['bag'] = GenerateBagQuads(),
 }
 
 gFonts = {

@@ -11,6 +11,7 @@ Entity = Class{}
 function Entity:init(def)
     self.type = def.type
     self.name = def.name
+    self.gender = def.gender
 
     self.direction = 'down'
 
