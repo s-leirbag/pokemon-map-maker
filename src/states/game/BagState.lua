@@ -13,14 +13,24 @@ function BagState:init(level)
         items = self.player.fieldMenuItems,
         currentSelection = self.level.currentFMSelection,
     }
-    self.pocket = level.pocket -- from 1 to 8
+    self.pocket = self.level.currentPocket -- from 1 to 8
 end
 
 function BagState:update(dt)
+    if love.keyboard.wasPressed('right') then
+        if self.pocket < 8 then
+            self.pocket = self.pocket + 1
 
+            -- tween?
+        end
+    elseif love.keyboard.wasPressed('left') then
+        if self.pocket > 1 then
+            self.pocket = self.pocket - 1
+        end
+    end
 end
 
 function BagState:render()
-    love.graphics.draw(gFrames['bag']['background'][self.pocket], VIRTUAL_WIDTH / 2 - 128, VIRTUAL_HEIGHT / 2 - 96)
-    love.graphics.draw(gFrames['bag'][self.player.gender][self.pocket], VIRTUAL_WIDTH / 2 - 114, VIRTUAL_HEIGHT / 2 - 84)
+    love.graphics.draw(gTextures['bag-background'], gFrames['bag']['background'][self.pocket], VIRTUAL_WIDTH / 2 - 128, VIRTUAL_HEIGHT / 2 - 96)
+    love.graphics.draw(gTextures['bag'], gFrames['bag'][self.player.gender][self.pocket], VIRTUAL_WIDTH / 2 - 114, VIRTUAL_HEIGHT / 2 - 84)
 end

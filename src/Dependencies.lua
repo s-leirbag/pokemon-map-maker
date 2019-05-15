@@ -65,9 +65,8 @@ gTextures = {
     ['girl-surf'] = love.graphics.newImage('graphics/characters/player/girl/girl_surf.png'),
     ['girl-fish'] = love.graphics.newImage('graphics/characters/player/girl/girl_fish.png'),
 
-    ['bag-background'] = love.graphics.newImage('graphics/bag/bg'),
-    ['bag-boy'] = love.graphics.newImage('graphics/bag/bag'),
-    ['bag-girl'] = love.graphics.newImage('graphics/bag/bag_f'),
+    ['bag-background'] = love.graphics.newImage('graphics/bag/bg.png'),
+    ['bag'] = love.graphics.newImage('graphics/bag/bag.png'),
 
     ['zigzagoon-back'] = love.graphics.newImage('graphics/pokemon/battle/aardart-back.png'),
     ['zigzagoon-front'] = love.graphics.newImage('graphics/pokemon/battle/aardart-front.png'),

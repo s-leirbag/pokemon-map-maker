@@ -90,7 +90,18 @@ end
 function GenerateBagQuads()
     local quads = {
         ['background'] = GenerateQuads(gTextures['bag-background'], 256, 192),
-        ['boy'] = GenerateQuads(gTextures['bag-boy'], 64, 64),
-        ['girl'] = GenerateQuads(gTextures['bag-girl'], 64, 64),
+        ['boy'] = {},
+        ['girl'] = {}
     }
+
+    local bagQuads = GenerateQuads(gTextures['bag'], 64, 64)
+    for i = 1, 8 do
+        table.insert(quads['boy'], bagQuads[i])
+    end
+
+    for i = 9, 16 do
+        table.insert(quads['girl'], bagQuads[i])
+    end
+
+    return quads
 end

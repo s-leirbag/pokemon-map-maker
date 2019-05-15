@@ -33,7 +33,7 @@ function Player:init(def)
             text = 'Bag',
             onSelect = function(currentSelection)
                 gStateStack:pop()
-                gStateStack:push(BagState())
+                gStateStack:push(BagState(self.level))
                 self.level.currentFMSelection = currentSelection
             end
         },
@@ -56,9 +56,9 @@ function Player:init(def)
         {
             text = 'Settings',
             onSelect = function(currentSelection)
-                gStateStack:pop()
-                gStateStack:push(SettingsState())
-                self.level.currentFMSelection = currentSelection
+                -- gStateStack:pop()
+                -- gStateStack:push(SettingsState())
+                -- self.level.currentFMSelection = currentSelection
             end
         },
         {

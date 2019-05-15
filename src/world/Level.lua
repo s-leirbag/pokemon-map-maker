@@ -49,6 +49,7 @@ function Level:init(width, height)
     self.mouseGridY = math.floor(gMouse.y / TILE_SIZE) + 1
 
     self.currentFMSelection = 1
+    self.currentPocket = 1
 end
 
 function Level:createMaps()
@@ -80,8 +81,8 @@ function Level:update(dt)
 
     self.player:update(dt)
 
-    if love.keyboard.isDown('enter') or love.keyboard.isDown('return') then
-        gStateStack:push(FieldMenuState(self.player))
+    if love.keyboard.wasPressed('enter') or love.keyboard.wasPressed('return') then
+        gStateStack:push(FieldMenuState(self))
     end
 
     self:changeMap()
