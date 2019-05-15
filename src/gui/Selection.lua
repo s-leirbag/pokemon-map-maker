@@ -21,12 +21,12 @@ function Selection:init(def)
     end
 
     self.items = def.items
+    self.font = def.font or gFonts['medium']
+
     self.x = def.x
     self.y = def.y
-
     self.height = def.height
     self.width = def.width
-    self.font = def.font or gFonts['medium']
 
     self.numRows = def.rows or #self.items
     self.numColumns = def.columns or 1
@@ -43,6 +43,8 @@ function Selection:init(def)
 
     self.gapHeight = self.height / self.numRows
     self.gapWidth = (self.width - 12) / self.numColumns
+    self.padding = def.padding or 0
+    self.padding = self.padding + 6
 end
 
 function Selection:update(dt)
@@ -109,7 +111,7 @@ function Selection:render()
         local paddedY = self.y + (row - 1) * self.gapHeight + (self.gapHeight / 2) - self.font:getHeight() / 2
 
         for column = 1, self.numColumns do
-            local paddedX = self.x + 6 + (column - 1) * self.gapWidth
+            local paddedX = self.x + self.padding + (column - 1) * self.gapWidth
 
             love.graphics.setFont(self.font)
             love.graphics.printf(self.items[(row - 1) * self.numColumns + column].text, paddedX, paddedY, self.gapWidth, self.items[(row - 1) * self.numColumns + column].align)

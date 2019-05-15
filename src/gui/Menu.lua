@@ -25,7 +25,8 @@ function Menu:init(def)
         width = def.width,
         height = def.height,
         rows = def.rows,
-        columns = def.columns
+        columns = def.columns,
+        padding = def.padding
     }
 end
 
