@@ -41,10 +41,16 @@ function Selection:init(def)
         self.column = 1
     end
 
-    self.gapHeight = self.height / self.numRows
-    self.gapWidth = (self.width - 12) / self.numColumns
+    -- TYPES
+    -- - evenly spaced out
+    -- - scroll
+    -- - space between(gapHeight & gapWidth) is specified not calculated
+    -- - start a menu state pls as well
+
     self.padding = def.padding or 0
     self.padding = self.padding + 6
+    self.gapHeight = (self.height - self.p) / self.numRows
+    self.gapWidth = (self.width - 12) / self.numColumns
 end
 
 function Selection:update(dt)
