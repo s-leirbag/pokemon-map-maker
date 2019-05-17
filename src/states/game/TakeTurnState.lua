@@ -48,7 +48,7 @@ function TakeTurnState:enter(params)
             function()
                 -- remove the last attack state from the stack
                 gStateStack:pop()
-                gStateStack:push(BattleMenuState(self.battleState))
+                gStateStack:push(self.battleState.battleMenuState)
             end)
         end)
     end)

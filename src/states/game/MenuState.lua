@@ -3,7 +3,11 @@ MenuState = Class{__includes = BaseState}
 function MenuState:init(def)
 	self.menu = def.menu
 	self.closeable = def.closeable
-	self.onClose = def.onClose
+	self.onClose = def.onClose or function() end
+
+	if def.onEnter then
+		def.onEnter()
+	end
 end
 
 function MenuState:update(dt)

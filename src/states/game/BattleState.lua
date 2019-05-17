@@ -180,7 +180,7 @@ function BattleState:triggerStartingDialogue()
             -- battle menu & fight menu selection is saved
             self.currentBMSelection = 1
             self.currentFMSelection = 1
-            gStateStack:push(MenuState{
+            self.battleMenuState = MenuState{
                 closeable = false,
                 menu = Menu{
                     x = VIRTUAL_WIDTH - 160,
@@ -197,7 +197,30 @@ function BattleState:triggerStartingDialogue()
                                 -- pop battle menu
                                 gStateStack:pop()
                                 self.currentBMSelection = currentSelection
-                                gStateStack:push(FightMenuState())
+                                gStateStack:push(MenuState{
+                                    closeable = true,
+                                    onClose = function() gStateStack:push(self.battleMenuState) end,
+                                    onEnter = function()
+                                        for k, move in pairs(self.player.party.pokemon[1].currentMoves) do
+                                            move.onSelect = function(currentSelection)
+                                                -- pop fight menu
+                                                gStateStack:pop()
+                                                gStateStack:push(TakeTurnState(self, move))
+                                                self.currentFMSelection = currentSelection
+                                            end
+                                        end
+                                    end,
+                                    menu = Menu {
+                                        x = 0,
+                                        y = VIRTUAL_HEIGHT - 64,
+                                        width = VIRTUAL_WIDTH - 140,
+                                        height = 64,
+                                        rows = 2,
+                                        columns = 2,
+                                        items = self.player.party.pokemon[1].currentMoves,
+                                        currentSelection = self.currentFMSelection,
+                                    }
+                                })
                             end
                         },
                         {
@@ -205,7 +228,7 @@ function BattleState:triggerStartingDialogue()
                             onSelect = function(currentSelection)
                                 gStateStack:pop()
                                 self.currentBMSelection = currentSelection
-                                gStateStack:push(BagState(self.battleState))
+                                gStateStack:push(BagState(self))
                             end
                         },
                         {
@@ -213,7 +236,7 @@ function BattleState:triggerStartingDialogue()
                             onSelect = function(currentSelection)
                                 -- gStateStack:pop()
                                 -- self.currentBMSelection = currentSelection
-                                -- gStateStack:push(PokemonState(self.battleState))
+                                -- gStateStack:push(PokemonState(self))
                             end
                         },
                         {
@@ -257,7 +280,8 @@ function BattleState:triggerStartingDialogue()
                         }
                     }
                 }
-            })
+            }
+            gStateStack:push(self.battleMenuState)
         end))
     end))
 end

@@ -82,7 +82,19 @@ function Level:update(dt)
     self.player:update(dt)
 
     if love.keyboard.wasPressed('enter') or love.keyboard.wasPressed('return') then
-        gStateStack:push(FieldMenuState(self))
+        gStateStack:push(MenuState{
+            closeable = true,
+            menu = Menu {
+                x = VIRTUAL_WIDTH - 90,
+                y = 2,
+                width = 90,
+                height = VIRTUAL_HEIGHT - 4,
+                rows = #self.player.fieldMenuItems,
+                columns = 1,
+                items = self.player.fieldMenuItems,
+                currentSelection = self.currentFMSelection,
+            }
+        })
     end
 
     self:changeMap()
