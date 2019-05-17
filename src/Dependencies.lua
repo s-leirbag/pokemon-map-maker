@@ -24,6 +24,7 @@ require 'src/gui/Panel'
 require 'src/gui/ProgressBar'
 require 'src/gui/Selection'
 require 'src/gui/Textbox'
+require 'src/states/game/MenuState'
 
 require 'src/states/BaseState'
 require 'src/states/StateStack'

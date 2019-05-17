@@ -49,8 +49,8 @@ function Selection:init(def)
 
     self.padding = def.padding or 0
     self.padding = self.padding + 6
-    self.gapHeight = (self.height - self.p) / self.numRows
-    self.gapWidth = (self.width - 12) / self.numColumns
+    self.gapHeight = (self.height - self.padding) / self.numRows
+    self.gapWidth = (self.width - self.padding * 2) / self.numColumns
 end
 
 function Selection:update(dt)
