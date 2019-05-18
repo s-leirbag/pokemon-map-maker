@@ -150,6 +150,7 @@ function Level:render()
     love.graphics.line(frameX, frameY, frameX, frameY + TILE_SIZE, frameX + TILE_SIZE, frameY + TILE_SIZE, frameX + TILE_SIZE, frameY, frameX, frameY)
     love.graphics.setColor(1, 1, 1, 1)
 
+    love.graphics.setFont(gFonts['small'])
     love.graphics.print(self.layer, 5, 10)
     love.graphics.print(self.name, 5, 20)
     love.graphics.print(self.type, 5, 30)

@@ -23,11 +23,6 @@ function Selection:init(def)
     self.items = def.items
     self.font = def.font or gFonts['medium']
 
-    self.x = def.x
-    self.y = def.y
-    self.height = def.height
-    self.width = def.width
-
     self.numRows = def.rows or #self.items
     self.numColumns = def.columns or 1
 
@@ -44,13 +39,25 @@ function Selection:init(def)
     -- TYPES
     -- - evenly spaced out
     -- - scroll
-    -- - space between(gapHeight & gapWidth) is specified not calculated
-    -- - start a menu state pls as well
+    -- - gapHeight & gapWidth are specified not calculated
+    -- - gapHeight & gapWidth are based on text length
 
-    self.padding = def.padding or 0
-    self.padding = self.padding + 6
-    self.gapHeight = (self.height - self.padding) / self.numRows
-    self.gapWidth = (self.width - self.padding * 2) / self.numColumns
+    local border = def.border or 2
+    self.padding = def.padding or 4
+    self.padding = self.padding + border
+
+    self.x = def.x + self.padding
+    self.y = def.y + self.padding
+    self.width = def.width - 2 * self.padding
+    self.height = def.height - 2 * self.padding
+
+    self.type = def.type or 'evenly-spaced'
+    if self.type == 'evenly-spaced' then
+        self.gapHeight = (self.height - self.padding * 2) / self.numRows
+        self.gapWidth = (self.width - self.padding * 2) / self.numColumns
+    else
+
+    end
 end
 
 function Selection:update(dt)
@@ -113,24 +120,31 @@ function Selection:update(dt)
 end
 
 function Selection:render()
-    for row = 1, self.numRows do
-        local paddedY = self.y + (row - 1) * self.gapHeight + (self.gapHeight / 2) - self.font:getHeight() / 2
+    love.graphics.setFont(self.font)
 
-        for column = 1, self.numColumns do
-            local paddedX = self.x + self.padding + (column - 1) * self.gapWidth
+    if self.type == 'evenly-spaced' then
+        for row = 1, self.numRows do
+            local textY = self.y + (row - 1) * self.gapHeight + self.gapHeight / 2 - self.font:getHeight() / 2
 
-            love.graphics.setFont(self.font)
-            love.graphics.printf(self.items[(row - 1) * self.numColumns + column].text, paddedX, paddedY, self.gapWidth, self.items[(row - 1) * self.numColumns + column].align)
+            for column = 1, self.numColumns do
+                local textX = self.x + (column - 1) * self.gapWidth
 
-            -- draw selection marker if we're at the right index and cursor setting is true
-            if (row - 1) * self.numColumns + column == self.currentSelection and self.cursor then
-                love.graphics.setLineWidth(1)
-                love.graphics.line(paddedX - 2, paddedY,
-                    paddedX - 2, paddedY + self.font:getHeight(),
-                    paddedX - 2 + self.gapWidth, paddedY + self.font:getHeight(),
-                    paddedX - 2 + self.gapWidth, paddedY,
-                    paddedX - 2, paddedY)
+                print(textX)
+                print(textY)
+                love.graphics.printf(self.items[(row - 1) * self.numColumns + column].text, textX, textY, self.gapWidth, self.items[(row - 1) * self.numColumns + column].align or 'left')
+
+                -- draw selection marker if we're at the right index and cursor setting is true
+                if (row - 1) * self.numColumns + column == self.currentSelection and self.cursor then
+                    love.graphics.setLineWidth(1)
+                    love.graphics.line(textX - 2, textY,
+                        textX - 2, textY + self.font:getHeight(),
+                        textX - 2 + self.gapWidth, textY + self.font:getHeight(),
+                        textX - 2 + self.gapWidth, textY,
+                        textX - 2, textY)
+                end
             end
         end
+    else
+
     end
 end

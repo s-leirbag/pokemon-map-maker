@@ -8,11 +8,12 @@
 
 Panel = Class{}
 
-function Panel:init(x, y, width, height)
+function Panel:init(x, y, width, height, border)
     self.x = x
     self.y = y
     self.width = width
     self.height = height
+    self.border = border or 2
 
     self.visible = true
 end
@@ -26,7 +27,7 @@ function Panel:render()
         love.graphics.setColor(1, 1, 1, 1)
         love.graphics.rectangle('fill', self.x, self.y, self.width, self.height, 3)
         love.graphics.setColor(0.22, 0.22, 0.22, 255)
-        love.graphics.rectangle('fill', self.x + 2, self.y + 2, self.width - 4, self.height - 4, 3)
+        love.graphics.rectangle('fill', self.x + self.border, self.y + self.border, self.width - self.border * 2, self.height - self.border * 2, 3)
         love.graphics.setColor(1, 1, 1, 1)
     end
 end

@@ -13,7 +13,7 @@
 Menu = Class{}
 
 function Menu:init(def)
-    self.panel = Panel(def.x, def.y, def.width, def.height)
+    self.panel = Panel(def.x, def.y, def.width, def.height, def.border)
 
     self.selection = Selection {
         cursor = def.cursor,
@@ -26,7 +26,9 @@ function Menu:init(def)
         height = def.height,
         rows = def.rows,
         columns = def.columns,
-        padding = def.padding
+        padding = def.padding,
+        border = def.border,
+        type = def.type,
     }
 end
 
