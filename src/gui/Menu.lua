@@ -29,6 +29,7 @@ function Menu:init(def)
         padding = def.padding,
         border = def.border,
         type = def.type,
+        color = def.color,
     }
 end
 

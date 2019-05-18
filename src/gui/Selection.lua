@@ -18,6 +18,8 @@ function Selection:init(def)
         self.cursor = false
     else
         self.cursor = true
+        self.cursorColor = def.cursorColor or {r = 1, g = 0.15, b = 0.15, a = 1}
+        self.color = def.color or {r = 1, g = 1, b = 1, a = 1}
     end
 
     self.items = def.items
@@ -37,7 +39,6 @@ function Selection:init(def)
     end
 
     -- TYPES
-    -- - evenly spaced out
     -- - scroll
     -- - gapHeight & gapWidth are specified not calculated
     -- - gapHeight & gapWidth are based on text length
@@ -45,6 +46,7 @@ function Selection:init(def)
     local border = def.border or 2
     self.padding = def.padding or 4
     self.padding = self.padding + border
+    self.spacing = def.spacing or 4
 
     self.x = def.x + self.padding
     self.y = def.y + self.padding
@@ -53,10 +55,11 @@ function Selection:init(def)
 
     self.type = def.type or 'evenly-spaced'
     if self.type == 'evenly-spaced' then
-        self.gapHeight = (self.height - self.padding * 2) / self.numRows
-        self.gapWidth = (self.width - self.padding * 2) / self.numColumns
-    else
-
+        self.gapHeight = self.height / self.numRows
+        self.gapWidth = self.width / self.numColumns
+    elseif self.type == 'scroll' then
+        self.rowOffset = 0
+        self.columnOffset = 0
     end
 end
 
@@ -127,20 +130,24 @@ function Selection:render()
             local textY = self.y + (row - 1) * self.gapHeight + self.gapHeight / 2 - self.font:getHeight() / 2
 
             for column = 1, self.numColumns do
-                local textX = self.x + (column - 1) * self.gapWidth
+                local textX = self.x + (column - 1) * self.gapWidth + (column - 1) * self.spacing / 2
 
                 print(textX)
                 print(textY)
-                love.graphics.printf(self.items[(row - 1) * self.numColumns + column].text, textX, textY, self.gapWidth, self.items[(row - 1) * self.numColumns + column].align or 'left')
+                print(self.width)
+                print(self.gapWidth)
+                love.graphics.setColor(self.color.r or 1, self.color.g or 1, self.color.b or 1, self.color.a or 1)
+                love.graphics.printf(self.items[(row - 1) * self.numColumns + column].text, textX, textY, self.gapWidth - column * self.spacing / 2, self.items[(row - 1) * self.numColumns + column].align or 'left')
 
                 -- draw selection marker if we're at the right index and cursor setting is true
                 if (row - 1) * self.numColumns + column == self.currentSelection and self.cursor then
                     love.graphics.setLineWidth(1)
-                    love.graphics.line(textX - 2, textY,
-                        textX - 2, textY + self.font:getHeight(),
-                        textX - 2 + self.gapWidth, textY + self.font:getHeight(),
-                        textX - 2 + self.gapWidth, textY,
-                        textX - 2, textY)
+                    love.graphics.setColor(self.cursorColor.r or 1, self.cursorColor.g or 0, self.cursorColor.b or 0, self.cursorColor.a or 1)
+                    love.graphics.line(textX - 2, textY - 2,
+                        textX - 2, textY + self.font:getHeight() + 2,
+                        textX - 2 + self.gapWidth, textY + self.font:getHeight() + 2,
+                        textX - 2 + self.gapWidth, textY - 2,
+                        textX - 2, textY - 2) -- the spacing at the end of the lines are just adjustments
                 end
             end
         end
