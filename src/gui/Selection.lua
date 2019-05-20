@@ -115,8 +115,10 @@ function Selection:update(dt)
                 self.row = self.row + 1
 
                 if self.type == 'scroll' then
-                    if self.dispRow == numDispRows then
+                    if self.dispRow == self.numDispRows then
                         self.rowOffset = self.rowOffset + 1
+
+                        print('yote')
                     else
                         self.dispRow = self.dispRow + 1
                     end
@@ -153,7 +155,7 @@ function Selection:update(dt)
                 self.column = self.column + 1
                 
                 if self.type == 'scroll' then
-                    if self.dispColumn == numDispColumns then
+                    if self.dispColumn == self.numDispColumns then
                         self.columnOffset = self.columnOffset + 1
                     else
                         self.dispColumn = self.dispColumn + 1
@@ -193,18 +195,18 @@ function Selection:render()
             end
         end
     elseif self.type == 'scroll' then
-        for row = 1, self.numDispRows do
-            local textY = self.y + (row - 1) * self.gapHeight + self.gapHeight / 2 - self.font:getHeight() / 2
+        for dispRow = 1, self.numDispRows do
+            local textY = self.y + (dispRow - 1) * self.gapHeight + self.gapHeight / 2 - self.font:getHeight() / 2
 
-            for column = 1, self.numDispColumns do
-                local textX = self.x + (column - 1) * self.gapWidth + (column - 1) * self.spacing / 2
+            for dispColumn = 1, self.numDispColumns do
+                local textX = self.x + (dispColumn - 1) * self.gapWidth + (dispColumn - 1) * self.spacing / 2
 
                 love.graphics.setColor(self.color.r or 1, self.color.g or 1, self.color.b or 1, self.color.a or 1)
-                love.graphics.printf(self.items[(row + self.rowOffset - 1) * self.numColumns + column + self.columnOffset].text, textX, textY, self.gapWidth - column * self.spacing / 2, self.items[(row + self.rowOffset - 1) * self.numColumns + column + self.columnOffset].align or 'left')
+                love.graphics.printf(self.items[(dispRow + self.rowOffset - 1) * self.numColumns + dispColumn + self.columnOffset].text, textX, textY, self.gapWidth - dispColumn * self.spacing / 2, self.items[(dispRow + self.rowOffset - 1) * self.numColumns + dispColumn + self.columnOffset].align or 'left')
 
                 -- EDIT SELECTION MARKER
                 -- draw selection marker if we're at the right index and cursor setting is true
-                if (row + self.rowOffset - 1) * self.numColumns + column + self.columnOffset == self.currentSelection and self.cursor then
+                if (dispRow + self.rowOffset - 1) * self.numColumns + dispColumn + self.columnOffset == self.currentSelection and self.cursor then
                     love.graphics.setColor(self.cursorColor.r or 1, self.cursorColor.g or 0, self.cursorColor.b or 0, self.cursorColor.a or 1)
                     love.graphics.rectangle('line', textX - 2, textY - 2, self.gapWidth, self.font:getHeight() + 4, 1)
                 end
