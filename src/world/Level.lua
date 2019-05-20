@@ -88,11 +88,14 @@ function Level:update(dt)
                 x = VIRTUAL_WIDTH - 90,
                 y = 2,
                 width = 90,
-                height = VIRTUAL_HEIGHT - 4,
+                height = VIRTUAL_HEIGHT / 2,
                 rows = #self.player.fieldMenuItems,
                 columns = 1,
+                numDispRows = #self.player.fieldMenuItems - 2,
+                numDispColumns = 1,
                 items = self.player.fieldMenuItems,
                 currentSelection = self.currentFMSelection,
+                type = 'scroll',
             }
         })
     end

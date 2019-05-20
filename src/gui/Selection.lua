@@ -96,10 +96,12 @@ function Selection:update(dt)
             if self.row ~= 1 then
                 self.row = self.row - 1
 
-                if self.dispRow == 1 then
-                    self.rowOffset = self.rowOffset - 1
-                else
-                    self.dispRow = self.dispRow - 1
+                if self.type == 'scroll' then
+                    if self.dispRow == 1 then
+                        self.rowOffset = self.rowOffset - 1
+                    else
+                        self.dispRow = self.dispRow - 1
+                    end
                 end
 
                 gSounds['blip']:stop()
@@ -112,10 +114,12 @@ function Selection:update(dt)
             if self.row ~= self.numRows then
                 self.row = self.row + 1
 
-                if self.dispRow == numDispRows then
-                    self.rowOffset = self.rowOffset + 1
-                else
-                    self.dispRow = self.dispRow + 1
+                if self.type == 'scroll' then
+                    if self.dispRow == numDispRows then
+                        self.rowOffset = self.rowOffset + 1
+                    else
+                        self.dispRow = self.dispRow + 1
+                    end
                 end
                 
                 gSounds['blip']:stop()
@@ -130,10 +134,12 @@ function Selection:update(dt)
             if self.column ~= 1 then
                 self.column = self.column - 1
 
-                if self.dispColumn == 1 then
-                    self.columnOffset = self.columnOffset - 1
-                else
-                    self.dispColumn = self.dispColumn - 1
+                if self.type == 'scroll' then
+                    if self.dispColumn == 1 then
+                        self.columnOffset = self.columnOffset - 1
+                    else
+                        self.dispColumn = self.dispColumn - 1
+                    end
                 end
                 
                 gSounds['blip']:stop()
@@ -146,10 +152,12 @@ function Selection:update(dt)
             if self.column ~= self.numColumns then
                 self.column = self.column + 1
                 
-                if self.dispColumn == numDispColumns then
-                    self.columnOffset = self.columnOffset + 1
-                else
-                    self.dispColumn = self.dispColumn + 1
+                if self.type == 'scroll' then
+                    if self.dispColumn == numDispColumns then
+                        self.columnOffset = self.columnOffset + 1
+                    else
+                        self.dispColumn = self.dispColumn + 1
+                    end
                 end
 
                 gSounds['blip']:stop()
@@ -196,7 +204,7 @@ function Selection:render()
 
                 -- EDIT SELECTION MARKER
                 -- draw selection marker if we're at the right index and cursor setting is true
-                if (row - 1) * self.numColumns + column == self.currentSelection and self.cursor then
+                if (row + self.rowOffset - 1) * self.numColumns + column + self.columnOffset == self.currentSelection and self.cursor then
                     love.graphics.setColor(self.cursorColor.r or 1, self.cursorColor.g or 0, self.cursorColor.b or 0, self.cursorColor.a or 1)
                     love.graphics.rectangle('line', textX - 2, textY - 2, self.gapWidth, self.font:getHeight() + 4, 1)
                 end

@@ -26,9 +26,12 @@ function Menu:init(def)
         height = def.height,
         rows = def.rows,
         columns = def.columns,
+        numDispRows = def.numDispRows,
+        numDispColumns = def.numDispColumns,
         padding = def.padding,
         border = def.border,
         type = def.type,
+        cursorColor = def.cursorColor,
         color = def.color,
     }
 end
