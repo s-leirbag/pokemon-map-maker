@@ -28,20 +28,10 @@ function Selection:init(def)
     self.numRows = def.rows or #self.items
     self.numColumns = def.columns or 1
 
-    if def.currentSelection then     
-        self.currentSelection = def.currentSelection
-        self.row = math.ceil(self.currentSelection / self.numColumns)
-        self.column = self.currentSelection - (self.row - 1) * self.numColumns
-    else
-        self.currentSelection = 1
-        self.row = 1
-        self.column = 1
-    end
-
-    -- TYPES
-    -- - scroll
+    -- types/stuff left to do
     -- - gapHeight & gapWidth are specified not calculated
     -- - gapHeight & gapWidth are based on text length
+    -- - make custom colors for each item
 
     local border = def.border or 2
     self.padding = def.padding or 4
@@ -57,9 +47,37 @@ function Selection:init(def)
     if self.type == 'evenly-spaced' then
         self.gapHeight = self.height / self.numRows
         self.gapWidth = self.width / self.numColumns
+
+        if def.currentSelection then     
+            self.currentSelection = def.currentSelection
+            self.row = math.ceil(self.currentSelection / self.numColumns)
+            self.column = self.currentSelection - (self.row - 1) * self.numColumns
+        else
+            self.currentSelection = 1
+            self.row = 1
+            self.column = 1
+        end
     elseif self.type == 'scroll' then
         self.rowOffset = 0
         self.columnOffset = 0
+        self.numDispRows = def.numDispRows
+        self.numDispColumns = def.numDispColumns
+        self.gapHeight = self.height / self.numDispRows
+        self.gapWidth = self.width / self.numDispColumns
+
+        if def.currentSelection then     
+            self.currentSelection = def.currentSelection
+            self.row = math.ceil(self.currentSelection / self.numColumns)
+            self.column = self.currentSelection - (self.row - 1) * self.numColumns
+            self.dispRow = 1 -- ?
+            self.dispColumn = 1
+        else
+            self.currentSelection = 1
+            self.row = 1
+            self.column = 1
+            self.dispRow = 1
+            self.dispColumn = 1
+        end
     end
 end
 
@@ -78,6 +96,12 @@ function Selection:update(dt)
             if self.row ~= 1 then
                 self.row = self.row - 1
 
+                if self.dispRow == 1 then
+                    self.rowOffset = self.rowOffset - 1
+                else
+                    self.dispRow = self.dispRow - 1
+                end
+
                 gSounds['blip']:stop()
                 gSounds['blip']:play()
             else       
@@ -87,6 +111,12 @@ function Selection:update(dt)
         elseif love.keyboard.wasPressed('down') then
             if self.row ~= self.numRows then
                 self.row = self.row + 1
+
+                if self.dispRow == numDispRows then
+                    self.rowOffset = self.rowOffset + 1
+                else
+                    self.dispRow = self.dispRow + 1
+                end
                 
                 gSounds['blip']:stop()
                 gSounds['blip']:play()
@@ -99,6 +129,12 @@ function Selection:update(dt)
         if love.keyboard.wasPressed('left') then
             if self.column ~= 1 then
                 self.column = self.column - 1
+
+                if self.dispColumn == 1 then
+                    self.columnOffset = self.columnOffset - 1
+                else
+                    self.dispColumn = self.dispColumn - 1
+                end
                 
                 gSounds['blip']:stop()
                 gSounds['blip']:play()
@@ -110,6 +146,12 @@ function Selection:update(dt)
             if self.column ~= self.numColumns then
                 self.column = self.column + 1
                 
+                if self.dispColumn == numDispColumns then
+                    self.columnOffset = self.columnOffset + 1
+                else
+                    self.dispColumn = self.dispColumn + 1
+                end
+
                 gSounds['blip']:stop()
                 gSounds['blip']:play()
             else       
@@ -132,26 +174,33 @@ function Selection:render()
             for column = 1, self.numColumns do
                 local textX = self.x + (column - 1) * self.gapWidth + (column - 1) * self.spacing / 2
 
-                print(textX)
-                print(textY)
-                print(self.width)
-                print(self.gapWidth)
                 love.graphics.setColor(self.color.r or 1, self.color.g or 1, self.color.b or 1, self.color.a or 1)
                 love.graphics.printf(self.items[(row - 1) * self.numColumns + column].text, textX, textY, self.gapWidth - column * self.spacing / 2, self.items[(row - 1) * self.numColumns + column].align or 'left')
 
                 -- draw selection marker if we're at the right index and cursor setting is true
                 if (row - 1) * self.numColumns + column == self.currentSelection and self.cursor then
-                    love.graphics.setLineWidth(1)
                     love.graphics.setColor(self.cursorColor.r or 1, self.cursorColor.g or 0, self.cursorColor.b or 0, self.cursorColor.a or 1)
-                    love.graphics.line(textX - 2, textY - 2,
-                        textX - 2, textY + self.font:getHeight() + 2,
-                        textX - 2 + self.gapWidth, textY + self.font:getHeight() + 2,
-                        textX - 2 + self.gapWidth, textY - 2,
-                        textX - 2, textY - 2) -- the spacing at the end of the lines are just adjustments
+                    love.graphics.rectangle('line', textX - 2, textY - 2, self.gapWidth, self.font:getHeight() + 4, 1)
                 end
             end
         end
-    else
+    elseif self.type == 'scroll' then
+        for row = 1, self.numDispRows do
+            local textY = self.y + (row - 1) * self.gapHeight + self.gapHeight / 2 - self.font:getHeight() / 2
 
+            for column = 1, self.numDispColumns do
+                local textX = self.x + (column - 1) * self.gapWidth + (column - 1) * self.spacing / 2
+
+                love.graphics.setColor(self.color.r or 1, self.color.g or 1, self.color.b or 1, self.color.a or 1)
+                love.graphics.printf(self.items[(row + self.rowOffset - 1) * self.numColumns + column + self.columnOffset].text, textX, textY, self.gapWidth - column * self.spacing / 2, self.items[(row + self.rowOffset - 1) * self.numColumns + column + self.columnOffset].align or 'left')
+
+                -- EDIT SELECTION MARKER
+                -- draw selection marker if we're at the right index and cursor setting is true
+                if (row - 1) * self.numColumns + column == self.currentSelection and self.cursor then
+                    love.graphics.setColor(self.cursorColor.r or 1, self.cursorColor.g or 0, self.cursorColor.b or 0, self.cursorColor.a or 1)
+                    love.graphics.rectangle('line', textX - 2, textY - 2, self.gapWidth, self.font:getHeight() + 4, 1)
+                end
+            end
+        end
     end
 end
